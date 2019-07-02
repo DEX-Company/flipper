@@ -20,16 +20,18 @@ class ConfigReader():
         
         
         self.drop_path = config.get('main', 'drop_path')
+        self.keeper_url = config.get('ocean', 'keeper_url')
         self.contracts_path = config.get('ocean', 'contracts_path')
         self.gas_limit = config.get('ocean', 'gas_limit')
 
 
         self.asset = {}
-        self.asset['tag'] = config.get('asset', 'tag', 'health1b_asset_share')
-        self.asset['author'] = config.get('asset', 'author', 'Ocean Drop Asset')
-        self.asset['license'] = config.get('asset', 'lisence', 'closed')
-        self.asset['description'] = config.get('asset', 'description', 'Not for public sale')
-        self.asset['price'] = config.get('asset', 'price', '1')
+        self.asset['tag'] = config.get('asset', 'tag', fallback='ocean_drop_share')
+        self.asset['name'] = config.get('asset', 'name', fallback='Ocean Drop Asset')
+        self.asset['author'] = config.get('asset', 'author', fallback='Ocean Drop Asset')
+        self.asset['license'] = config.get('asset', 'lisence', fallback='closed')
+        self.asset['description'] = config.get('asset', 'description', fallback='Not for public sale')
+        self.asset['price'] = config.get('asset', 'price', fallback='1')
 
         self.publisher_account = {
             'address': config.get('publisher account', 'address'),
@@ -43,10 +45,16 @@ class ConfigReader():
         items = config.items('squid agent')
         self.squid_agent = {}
         for item in items:
-            self.squid_config[item[0]] = item[1]
+            self.squid_agent[item[0]] = item[1]
 
         items = config.items('surfer agent')
         self.surfer_agent = {}
         for item in items:
-            self.surfer_config[item[0]] = item[1]
+            self.surfer_agent[item[0]] = item[1]
+        
+
+        items = config.items('account topup')
+        self.account_topup = {}
+        for item in items:
+            self.account_topup[item[0]] = item[1]
         
