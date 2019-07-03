@@ -46,7 +46,7 @@ class OceanDrop:
                 counter = 0
                 for file_item in sync.publish_list:
                     logger.info(f'publishing file {file_item["filename"]}')
-                    self.publish_file(file_item['filename'], file_item['md5_hash'])
+                    self.publish_file(file_item['filename'], file_item['md5_hash'], file_item['relative_filename'])
                     counter += 1
                     if counter >= max_count and max_count > 0:
                         break
@@ -104,7 +104,7 @@ class OceanDrop:
 
         return self._ocean, self._squid_agent, self._surfer_agent
         
-    def publish_file(self, filename, file_hash):
+    def publish_file(self, filename, file_hash, relative_filename):
 
         listing_data = self.generate_listing_data(file_hash, self._config.main.drop_secret)
 
@@ -117,7 +117,8 @@ class OceanDrop:
 
         publish_account = self._ocean.get_account(self._config.publish.account_address, self._config.publish.account_password)
         download_link = asset_store.did
-        resourceId = base64.b64encode(bytes(filename)).decode('utf-8')
+        
+        resourceId = base64.b64encode(relative_filename.encode()).decode('utf-8')
         asset_sale = RemoteAsset(metadata={'resourceId': resourceId}, url=download_link)
         listing = self._squid_agent.register_asset(asset_sale, listing_data, publish_account)
         return listing
@@ -140,10 +141,16 @@ class OceanDrop:
             download_url = self._surfer_agent.get_asset_store_url(asset_id)
             asset_store = self._surfer_agent.download_asset(asset_id, download_url)
             print('found asset store', asset_store.metadata)
-            filename = os.path.join(drop_path, asset_store.metadata['filename'])
+            filename = os.path.join(os.path.abspath(drop_path), asset_store.metadata['filename'])
             if 'resourceId' in purchase_asset.metadata:
-                filename = os.path.join(drop_path, base64.b64decode(purchase_asset.metadata['resourceId']).decode('utf-8'))  
+                relative_filename = base64.b64decode(purchase_asset.metadata['resourceId']).decode('utf-8')
+                filename = os.path.join(os.path.abspath(drop_path), relative_filename)
+                folder = os.path.dirname(filename)
+                if not os.path.exists(folder):
+                    logger.info(f'creating folder {folder}')
+                    os.makedirs(folder)
             logger.info(f'saving file to {filename}')
+                
             # save the data
             # asset_store.save(filename)
             with open(filename, 'wb') as fp:
@@ -165,8 +172,7 @@ below the minimum allowed, so auto top up of account with ocean tokens')
             account.unlock()
             account.request_tokens(topup_ocean_balance)
 
-    @staticmethod
-    def generate_listing_data(file_hash, drop_secret):
+    def generate_listing_data(self, file_hash, drop_secret):
         nonce = secrets.token_hex(32)
         checksum = generate_listing_checksum(nonce, drop_secret)
         data = {
@@ -180,7 +186,7 @@ below the minimum allowed, so auto top up of account with ocean tokens')
                 'checksum': checksum,
                 'file_hash': file_hash,
             },
-            'tags': [self._config.asset.tag],
+            'tags': [self._config.main.search_tag],
         }
         return data
 

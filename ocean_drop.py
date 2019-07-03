@@ -11,12 +11,27 @@ from ocean_drop import OceanDrop
 DEFAULT_CONFIG_FILENAME = './ocean_drop.conf'
 DEFAULT_MAX_COUNT = 0
 
+COMMAND_LIST = {
+    'publish': 'Publish a new files onto the Ocean Network as an asset.',
+    'consume': 'Consume and download any new asset from the Ocean Newtwork.',
+    'status': 'Show the number of files that need to be synced.',
+    'watch': 'Watch for new consumer payment requests, and enable the consume transaction.',
+}
+
+def show_command_help():
+    print('\nThe following commands can be used:\n')
+    print('Command              Description')
+    for name, line in COMMAND_LIST.items():
+        print(f'{name:20} {line}\n')
+        
+
 def main():
     parser = argparse.ArgumentParser('Ocean Drop')
+    command_list_text = '","'.join(COMMAND_LIST)
     parser.add_argument(
         'drop_command',
         type=str,
-        help='The type of user, "publish", "consume", "status"',
+        help=f'The type of commands: "{command_list_text}"',
     )
     parser.add_argument(
         '-c', '--config',
@@ -40,8 +55,18 @@ def main():
         help=f'Only consume/publish maximum number of assets. Default: {DEFAULT_MAX_COUNT} ( 0 = No limit )',
         default=DEFAULT_MAX_COUNT,
     )
+    
+    parser.add_argument(
+        '--help-commands',
+        action='store_true',
+        help='show the help for the possible commands'
+    )
     args = parser.parse_args()
 
+    if args.help_commands:
+        show_command_help()
+        return
+        
     config = ConfigReader()
     config.read(args.config)
 
@@ -58,14 +83,14 @@ def main():
     ocean_drop = OceanDrop(config)
     
     if args.drop_command:
-        command_char = args.drop_command.lower()[0]
-        if command_char == 'p':
+        command_text = args.drop_command.lower()[:3]
+        if command_text == 'pub':
             ocean_drop.publish(args.max)
-        elif command_char == 'c':
+        elif command_text == 'con':
             ocean_drop.consume(args.max)
-        elif command_char == 's':
+        elif command_text == 'sta':
             ocean_drop.status()
-        elif command_char == 'w':
+        elif command_text == 'wat':
             ocean_drop.process_payment_events()
         else:
             print(f'unknown command {args.drop_command}')

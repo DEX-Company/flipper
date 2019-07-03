@@ -4,3 +4,4 @@ __pycache__/
 *.egg-info/
 test_drop/
 artifacts/
+squid_py.db
