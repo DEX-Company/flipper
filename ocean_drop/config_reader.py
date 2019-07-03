@@ -2,8 +2,8 @@
 
     Config Reader
 """
-  
 
+import re
 import os
 
 from configparser import (
@@ -11,50 +11,77 @@ from configparser import (
     ExtendedInterpolation,
 )
 
+class ConfigSection():
+    @property
+    def as_dict(self):
+        return self.__dict__
+#        result = {}
+#        for name, value in getattr(self):
+#            result[name] = value
+#        return result
+
 class ConfigReader():
+
+    CONFIG_DEFINE = {
+        'main': {
+            'network_url': None,
+            'drop_secret': None,
+            'drop_path': None,
+        },
+        'ocean': {
+            'keeper_url': None,
+            'contracts_path': 'articles',
+            'gas_limit': 100000,
+        },
+        'asset': {
+            'tag': 'ocean_drop_share',
+            'name':  'Ocean Drop Asset',
+            'author': 'Ocean Drop Asset',
+            'lisence': 'closed',
+            'description': 'Not for public sale',
+            'price': 1,
+        },
+        'publisher account': {
+            'address': None,
+            'password': None,
+        },
+        'consumer account': {
+            'address': None,
+            'password': None,
+        },
+        'squid agent': {
+            'aquarius_url': '${main:network_url}:5000',
+            'brizo_url': '${main:network_url}:8030',
+            'secret_store_url': '${main:network_url}:12001',
+            'parity_url': '${main:network_url}:8545',
+            'storage_path': 'squid_py.db',
+            'download_path': 'consume_downloads',
+        },
+        'surfer agent': {
+            'url': '${main:network_url}:8080',
+            'username': None,
+            'password': None,
+        },
+        'auto topup': {
+            'minimum_ocean_balance': 10,
+            'minimun_ether_balance': 3,
+            'topup_ocean_balance':  10,
+            'topup_ether_balance': 3,
+            'ether_faucet_url': 'https://faucet.${main:network_url}',
+        },
+    }
+
+
+
     def read(self, filename):
         config = ConfigParser(interpolation=ExtendedInterpolation())
-        config.read(filename)        
-        self.network_url = config.get('main', 'network_url')
-        self.drop_secret = config.get('main', 'drop_secret')
-        
-        
-        self.drop_path = config.get('main', 'drop_path')
-        self.keeper_url = config.get('ocean', 'keeper_url')
-        self.contracts_path = config.get('ocean', 'contracts_path')
-        self.gas_limit = config.get('ocean', 'gas_limit')
+        config.read(filename)
 
 
-        self.asset = {}
-        self.asset['tag'] = config.get('asset', 'tag', fallback='ocean_drop_share')
-        self.asset['name'] = config.get('asset', 'name', fallback='Ocean Drop Asset')
-        self.asset['author'] = config.get('asset', 'author', fallback='Ocean Drop Asset')
-        self.asset['license'] = config.get('asset', 'lisence', fallback='closed')
-        self.asset['description'] = config.get('asset', 'description', fallback='Not for public sale')
-        self.asset['price'] = config.get('asset', 'price', fallback='1')
+        for section_name, values in ConfigReader.CONFIG_DEFINE.items():
+            object_name = re.sub(r'\s', '_', section_name)
+            config_section = ConfigSection()
+            setattr(self, object_name, config_section)
+            for name, default_value in values.items():
+                setattr(config_section, name, config.get(section_name, name, fallback=default_value))
 
-        self.publisher_account = {
-            'address': config.get('publisher account', 'address'),
-            'password': config.get('publisher account', 'password')
-        }
-        self.consumer_account = {
-            'address': config.get('consumer account', 'address'),
-            'password': config.get('consumer account', 'password')
-        }
-
-        items = config.items('squid agent')
-        self.squid_agent = {}
-        for item in items:
-            self.squid_agent[item[0]] = item[1]
-
-        items = config.items('surfer agent')
-        self.surfer_agent = {}
-        for item in items:
-            self.surfer_agent[item[0]] = item[1]
-        
-
-        items = config.items('account topup')
-        self.account_topup = {}
-        for item in items:
-            self.account_topup[item[0]] = item[1]
-        
