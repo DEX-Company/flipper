@@ -5,13 +5,11 @@
 """
 
 import os
-import hashlib
 import logging
-import math
 import secrets
 import json
-
-from web3 import Web3
+import time
+import base64
 
 from starfish import Ocean
 from starfish.agent import (
@@ -23,11 +21,14 @@ from starfish.asset import (
     RemoteAsset,
 )
 
+from squid_py.exceptions import OceanDIDNotFound
+
+from ocean_drop.sync import Sync
+from ocean_drop.utils import generate_listing_checksum
+
 # from ocean_drop import logger
 
 logger = logging.getLogger(__name__)
-
-BYTES_PER_KB = 1000
 
 class OceanDrop:
     def __init__(self, config):
@@ -37,31 +38,56 @@ class OceanDrop:
         self._surfer_agent = None
 
 
-    def publish(self):
+    def publish(self, max_count=0):
         if self.connect():
-            found_file_list, new_listing_list, new_file_list, sync_stats = self.sync(self._config.main.drop_path)
-            if new_file_list:
-                for file_item in new_file_list:
+            sync = Sync(self._ocean, self._squid_agent)
+            sync.analyse(self._config.main.drop_path, self._config.main.drop_secret, self._config.main.search_tag)
+            if sync.publish_list:
+                counter = 0
+                for file_item in sync.publish_list:
                     logger.info(f'publishing file {file_item["filename"]}')
                     self.publish_file(file_item['filename'], file_item['md5_hash'])
+                    counter += 1
+                    if counter >= max_count and max_count > 0:
+                        break
 
 
-    def consume(self):
+    def consume(self, max_count=0):
         if self.connect():
-            found_file_list, new_listing_list, new_file_list, sync_stats = self.sync(self._config.main.drop_path)
-            if new_listing_list:
-                for listing in new_listing_list:
-                    self.consume_asset(listing, drop_path)
+            sync = Sync(self._ocean, self._squid_agent)
+            sync.analyse(self._config.main.drop_path, self._config.main.drop_secret, self._config.main.search_tag)
+            if sync.consume_list:
+                counter = 0
+                for listing in sync.consume_list:
+                    if self.consume_asset(listing, self._config.main.drop_path):
+                        counter += 1
+                        if counter >= max_count and max_count > 0:
+                            break
 
+    def process_payment_events(self):
+        if self.connect():
+            publish_account = self._ocean.get_account(self._config.publish.account_address, self._config.publish.account_password)
+            model = self._ocean.get_squid_model()
+            ocn = model.get_squid_ocean(publish_account)
+            ocn.agreements.watch_provider_events(publish_account._squid_account)
+            logger.info('wait for transaction to be started')
+            while True:
+                time.sleep(1)
+                
     def status(self):
         if self.connect():
-            found_file_list, new_listing_list, new_file_list, sync_stats = self.sync(self._config.main.drop_path)
-            print('\n'.join(self.sync_stats_to_text(sync_stats)))
+            sync = Sync(self._ocean, self._squid_agent)
+            sync.analyse(self._config.main.drop_path, self._config.main.drop_secret, self._config.main.search_tag)
+            print('\n'.join(sync.stats_to_text_list))
 
+    def topup(self):
+        if self.connect():
+            self.auto_topup_account
+            
     def connect(self):
         self._ocean = Ocean(
             keeper_url=self._config.ocean.keeper_url,
-            contracts_path=self._config.ocean.contracts_path,
+            contracts_path=os.path.abspath(self._config.ocean.contracts_path),
             gas_limit=self._config.ocean.gas_limit,
             log_level=logging.DEBUG
         )
@@ -77,40 +103,10 @@ class OceanDrop:
         self._surfer_agent = SurferAgent(self._ocean, did=ddo.did, ddo=ddo, options=options)
 
         return self._ocean, self._squid_agent, self._surfer_agent
-
-    def sync(self, drop_path):
-        file_list = []
-        total_size = 0
-        file_list, total_size = OceanDrop.get_file_list(drop_path, file_list, total_size)
-        total_size_text = OceanDrop.show_size_as_text(total_size)
-        logger.debug(f' found {len(file_list)} files with a total size of {total_size_text}')
-
-        listing_list = self.get_valid_listings()
-        found_file_list, new_listing_list, new_file_list = self.sync_list(listing_list, file_list)
-        sync_stats = {
-            'file_count': len(file_list),
-            'total_size': total_size,
-            'sync_count': len(found_file_list),
-            'consume_count': len(new_listing_list),
-            'publish_count': len(new_file_list)
-        }
-        logger.debug(', '.join(self.sync_stats_to_text(sync_stats)))
-        return found_file_list, new_listing_list, new_file_list, sync_stats
-
-    def sync_stats_to_text(self, sync_stats):
-        total_space_text = self.show_size_as_text(sync_stats['total_size'])
-        result = [
-            f'Total files: {sync_stats["file_count"]}',
-            f'Total disk space used: {total_space_text}',
-            f'Published: {sync_stats["sync_count"]}',
-            f'Available to consume:  {sync_stats["consume_count"]}',
-            f'Available to publish: {sync_stats["publish_count"]}',
-        ]
-        return result
         
     def publish_file(self, filename, file_hash):
 
-        listing_data = self.generate_listing_data(file_hash)
+        listing_data = self.generate_listing_data(file_hash, self._config.main.drop_secret)
 
         # save the asset file to surfer
         asset_store = FileAsset(filename=filename)
@@ -119,18 +115,49 @@ class OceanDrop:
         # now upload to the storage
         self._surfer_agent.upload_asset(asset_store)
 
-        publisher_account = self._ocean.get_account(self._config.publisher_account)
+        publish_account = self._ocean.get_account(self._config.publish.account_address, self._config.publish.account_password)
         download_link = asset_store.did
-        asset_sale = RemoteAsset(url=download_link)
-        listing = self._squid_agent.register_asset(asset_sale, listing_data, publisher_account)
+        resourceId = base64.b64encode(bytes(filename)).decode('utf-8')
+        asset_sale = RemoteAsset(metadata={'resourceId': resourceId}, url=download_link)
+        listing = self._squid_agent.register_asset(asset_sale, listing_data, publish_account)
         return listing
 
+    def consume_asset(self, listing, drop_path):
+        consume_account = self._ocean.get_account(self._config.consume.account_address, self._config.consume.account_password)
+        self.auto_topup_account(consume_account)
+        logger.info(f'purchasing asset {listing.listing_id}')
+        try:
+            purchase = listing.purchase(consume_account)
+            if not purchase.is_completed:
+                purchase.wait_for_completion()
+        except OceanDIDNotFound:
+            logger.warn(f'Unable to find asset {listing.listing_id} on the network')
+            return False
+            
+        if purchase.is_purchase_valid:
+            purchase_asset = purchase.consume_asset
+            surfer_did, asset_id = self._surfer_agent.decode_asset_did(purchase_asset.url)
+            download_url = self._surfer_agent.get_asset_store_url(asset_id)
+            asset_store = self._surfer_agent.download_asset(asset_id, download_url)
+            print('found asset store', asset_store.metadata)
+            filename = os.path.join(drop_path, asset_store.metadata['filename'])
+            if 'resourceId' in purchase_asset.metadata:
+                filename = os.path.join(drop_path, base64.b64decode(purchase_asset.metadata['resourceId']).decode('utf-8'))  
+            logger.info(f'saving file to {filename}')
+            # save the data
+            # asset_store.save(filename)
+            with open(filename, 'wb') as fp:
+                fp.write(asset_store.data)
+                
+            return True
+        return False
+        
     def auto_topup_account(self, account):
-        min_ocean_balance = int(self.config.auto_topup.minimum_ocean_balance)
-        topup_ocean_balance = int(self.config.auto_topup.topup_ocean_balance)
-        min_ether_balance = int(self.config.auto_topup.minimum_ether_balance)
-        topup_ether_balasnce = int(self.config.auto_topup.topup_ether_balance)
-        faucet_url = self.config.auto_topup.ether_faucet_url
+        min_ocean_balance = int(self._config.auto_topup.min_ocean_balance)
+        topup_ocean_balance = int(self._config.auto_topup.topup_ocean_balance)
+        min_ether_balance = int(self._config.auto_topup.min_ether_balance)
+        topup_ether_balasnce = int(self._config.auto_topup.topup_ether_balance)
+        faucet_url = self._config.auto_topup.ether_faucet_url
 
         if account.ocean_balance < min_ocean_balance:
             logger.info(f'account {account.address} current balance is {account.ocean_balance} \
@@ -138,83 +165,10 @@ below the minimum allowed, so auto top up of account with ocean tokens')
             account.unlock()
             account.request_tokens(topup_ocean_balance)
 
-    def consume_asset(self, listing):
-        consumer_account = self._ocean.get_account(self._config.consumer_account)
-        self.auto_topup_account(consumer_account)
-        purchase = listing.purchase(consumer_account)
-        if not purchase.is_completed:
-            purchase.wait_for_completion()
-
-        if purchase.is_purchase_valid:
-            purchase_asset = purchase.consume_asset
-            surfer_did, asset_id = self._surfer_agent.decode_asset_did(purchase_asset.url)
-            download_url = self._surfer_agent.get_asset_store_url(asset_id)
-            new_asset_store = self._surfer_agent.download_asset(asset_id, download_url)
-
-    def get_valid_listings(self):
-        result = []
-        search_filter = {
-            'tags': [self._config.asset.tag]
-        }
-        listing_items = self._squid_agent.search_listings(search_filter)
-        for listing in listing_items:
-            if self.is_listing_valid(listing):
-                result.append(listing)
-        return result
-
-    def sync_list(self, listing_list, file_list):
-        found_file_list = []
-        new_listing_list = []
-        new_file_list = []
-
-        for listing in listing_list:
-            is_found = False
-            for file_item in file_list:
-                if file_item['is_file']:
-                    if self.is_listing_equal_to_file_item(listing, file_item['md5_hash']):
-                        found_file_list.append((listing, file_item))
-                        is_found = True
-                        break
-            if not is_found:
-                new_listing_list.append(listing)
-
-        for file_item in file_list:
-            if file_item['is_file']:
-                is_found = False
-                for listing in listing_list:
-                    if self.is_listing_equal_to_file_item(listing, file_item['md5_hash']):
-                        is_found = True
-                        break
-                if not is_found:
-                    new_file_list.append(file_item)
-        return found_file_list, new_listing_list, new_file_list
-
-    def is_listing_valid(self, listing):
-        data = listing.data
-        if data and 'extra_data' in data:
-            extra_data = data['extra_data']
-            if extra_data and 'nonce' in extra_data and 'checksum' in extra_data:
-                nonce = extra_data['nonce']
-                checksum = self.generate_listing_checksum(nonce)
-                return extra_data['checksum'] == checksum
-        return False
-
-    def is_listing_equal_to_file_item(self, listing, file_hash):
-        data = listing.data
-        logger.debug(f'{data}')
-        if data and 'extra_data' in data:
-            extra_data = data['extra_data']
-            if extra_data and 'file_hash' in extra_data:
-                return extra_data['file_hash'] == file_hash
-        return False
-
-    def generate_listing_checksum(self, nonce):
-        drop_secret = self._config.main.drop_secret
-        return Web3.toHex(Web3.sha3(text=f'{nonce}{drop_secret}'))
-
-    def generate_listing_data(self, file_hash):
+    @staticmethod
+    def generate_listing_data(file_hash, drop_secret):
         nonce = secrets.token_hex(32)
-        checksum = self.generate_listing_checksum(nonce)
+        checksum = generate_listing_checksum(nonce, drop_secret)
         data = {
             'name': self._config.asset.name,
             'description': self._config.asset.description,
@@ -230,45 +184,3 @@ below the minimum allowed, so auto top up of account with ocean tokens')
         }
         return data
 
-    @staticmethod
-    def get_file_list(folder, file_list, total_size):
-        logger.debug(f'Scanning folder {folder}')
-        for root, dirs, files in os.walk(folder):
-            if len(files) == 0 and len(dirs) == 0:
-                stat = os.lstat(root)
-                file_list.append({'mtime': stat.st_mtime, 'folder':root, 'size': 0, 'is_file': False} )
-            for file in files:
-                filename = os.path.join(root, file)
-                stat = os.lstat(filename)
-                md5_hash = OceanDrop.hash_file(filename)
-                total_size = total_size + stat.st_size
-                file_list.append({'mtime': stat.st_mtime, 'filename': filename, 'folder':root, 'size': stat.st_size, 'is_file': True, 'md5_hash': md5_hash} )
-
-        file_list = sorted(file_list, key = lambda k:k['mtime'])
-        return (file_list, total_size)
-
-    @staticmethod
-    def hash_file(filename):
-        hash_md5 = hashlib.md5()
-        with open(filename, "rb") as f:
-            for chunk in iter(lambda: f.read(4096), b""):
-                hash_md5.update(chunk)
-        return hash_md5.hexdigest()
-
-    @staticmethod
-    def show_size_as_text(size):
-        result = f'{size} Bytes'
-        items = [
-            (BYTES_PER_KB, 'KB'),
-            (math.pow(BYTES_PER_KB, 2), 'MB'),
-            (math.pow(BYTES_PER_KB, 3), 'GB'),
-            (math.pow(BYTES_PER_KB, 4), 'TB'),
-        ]
-
-        for item in items:
-            if size < item[0]:
-                break
-            format_size = size / item[0]
-            result = f'{format_size:.2f} {item[1]}'
-
-        return result

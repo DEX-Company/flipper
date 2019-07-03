@@ -9,6 +9,7 @@ from ocean_drop.config_reader import ConfigReader
 from ocean_drop import OceanDrop
 
 DEFAULT_CONFIG_FILENAME = './ocean_drop.conf'
+DEFAULT_MAX_COUNT = 0
 
 def main():
     parser = argparse.ArgumentParser('Ocean Drop')
@@ -32,6 +33,13 @@ def main():
         action='store_true',
         help='show debug log',
     )
+    
+    parser.add_argument(
+        '-m', '--max',
+        type=int,
+        help=f'Only consume/publish maximum number of assets. Default: {DEFAULT_MAX_COUNT} ( 0 = No limit )',
+        default=DEFAULT_MAX_COUNT,
+    )
     args = parser.parse_args()
 
     config = ConfigReader()
@@ -48,14 +56,17 @@ def main():
 
     logger.info(f'drop folder is {config.main.drop_path}')
     ocean_drop = OceanDrop(config)
+    
     if args.drop_command:
         command_char = args.drop_command.lower()[0]
         if command_char == 'p':
-            ocean_drop.publish()
+            ocean_drop.publish(args.max)
         elif command_char == 'c':
-            ocean_drop.consume()
+            ocean_drop.consume(args.max)
         elif command_char == 's':
             ocean_drop.status()
+        elif command_char == 'w':
+            ocean_drop.process_payment_events()
         else:
             print(f'unknown command {args.drop_command}')
 

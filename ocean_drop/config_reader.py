@@ -27,6 +27,7 @@ class ConfigReader():
             'network_url': None,
             'drop_secret': None,
             'drop_path': None,
+            'search_tag': 'ocean_drop_share',
         },
         'ocean': {
             'keeper_url': None,
@@ -34,20 +35,19 @@ class ConfigReader():
             'gas_limit': 100000,
         },
         'asset': {
-            'tag': 'ocean_drop_share',
             'name':  'Ocean Drop Asset',
             'author': 'Ocean Drop Asset',
-            'lisence': 'closed',
+            'license': 'closed',
             'description': 'Not for public sale',
             'price': 1,
         },
-        'publisher account': {
-            'address': None,
-            'password': None,
+        'publish': {
+            'account_address': None,
+            'account_password': None,
         },
-        'consumer account': {
-            'address': None,
-            'password': None,
+        'consume': {
+            'account_address': None,
+            'account_password': None,
         },
         'squid agent': {
             'aquarius_url': '${main:network_url}:5000',
@@ -63,8 +63,8 @@ class ConfigReader():
             'password': None,
         },
         'auto topup': {
-            'minimum_ocean_balance': 10,
-            'minimun_ether_balance': 3,
+            'min_ocean_balance': 10,
+            'min_ether_balance': 3,
             'topup_ocean_balance':  10,
             'topup_ether_balance': 3,
             'ether_faucet_url': 'https://faucet.${main:network_url}',
