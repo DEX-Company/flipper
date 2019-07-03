@@ -32,13 +32,18 @@ class Sync():
         self._file_list = []
         total_size = 0
         self._file_list, total_size = read_file_list(drop_path, self._file_list, total_size)
+        file_count = 0
+        for file_item in self._file_list:
+            if file_item['is_file']:
+                file_count += 1
+                
         total_size_text = show_size_as_text(total_size)
         logger.debug(f' found {len(self._file_list)} files with a total size of {total_size_text}')
 
         self._listing_list = self.get_valid_listings(asset_tag, drop_secret)
         self.sync_lists()
         self._stats = {
-            'file_count': len(self._file_list),
+            'file_count': file_count,
             'total_size': total_size,
             'sync_count': len(self._sync_file_list),
             'consume_count': len(self._consume_list),
@@ -55,7 +60,7 @@ class Sync():
         for listing in self._listing_list:
             is_found = False
             for file_item in self._file_list:
-                if file_item['is_file']:
+                if file_item['is_file'] and file_item['size'] > 0:
                     if self.is_listing_equal_to_file_item(listing, file_item['md5_hash']):
                         self._sync_file_list.append((listing, file_item))
                         is_found = True
@@ -64,7 +69,7 @@ class Sync():
                 self._consume_list.append(listing)
 
         for file_item in self._file_list:
-            if file_item['is_file']:
+            if file_item['is_file'] and file_item['size'] > 0:
                 is_found = False
                 for listing in self._listing_list:
                     if self.is_listing_equal_to_file_item(listing, file_item['md5_hash']):

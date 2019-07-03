@@ -94,6 +94,7 @@ def main():
             ocean_drop.process_payment_events()
         else:
             print(f'unknown command {args.drop_command}')
+            show_command_help()
 
 
 if __name__ == '__main__':
