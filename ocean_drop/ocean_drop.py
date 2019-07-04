@@ -21,14 +21,12 @@ from starfish.asset import (
     RemoteAsset,
 )
 
-from squid_py.exceptions import OceanDIDNotFound
+from starfish.exceptions import StarfishAssetNotFound
 
 from ocean_drop.sync import Sync
 from ocean_drop.utils import generate_listing_checksum
 
-# from ocean_drop import logger
-
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('ocean_drop')
 
 class OceanDrop:
     def __init__(self, config):
@@ -131,7 +129,7 @@ class OceanDrop:
             purchase = listing.purchase(consume_account)
             if not purchase.is_completed:
                 purchase.wait_for_completion()
-        except OceanDIDNotFound:
+        except StarfishAssetNotFound:
             logger.warn(f'Unable to find asset {listing.listing_id} on the network')
             return False
             

@@ -15,10 +15,6 @@ class ConfigSection():
     @property
     def as_dict(self):
         return self.__dict__
-#        result = {}
-#        for name, value in getattr(self):
-#            result[name] = value
-#        return result
 
 class ConfigReader():
 

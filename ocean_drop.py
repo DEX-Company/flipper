@@ -12,10 +12,10 @@ DEFAULT_CONFIG_FILENAME = './ocean_drop.conf'
 DEFAULT_MAX_COUNT = 0
 
 COMMAND_LIST = {
-    'publish': 'Publish a new files onto the Ocean Network as an asset.',
+    'publish': 'Publish a new files as assets onto the Ocean Network.',
     'consume': 'Consume and download any new asset from the Ocean Newtwork.',
-    'status': 'Show the number of files that need to be synced.',
-    'watch': 'Watch for new consumer payment requests, and enable the consume transaction.',
+    'status': 'Show the status and stats of the number of files that need to be synced.',
+    'watch': 'Watch for new consumer payment requests, to complete the consumer payment transactions.',
 }
 
 def show_command_help():
