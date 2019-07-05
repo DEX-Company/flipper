@@ -71,7 +71,7 @@ class OceanDrop:
             logger.info('wait for transaction to be started')
             while True:
                 time.sleep(1)
-                
+
     def status(self):
         if self.connect():
             sync = Sync(self._ocean, self._squid_agent)
@@ -81,14 +81,16 @@ class OceanDrop:
     def topup(self):
         if self.connect():
             self.auto_topup_account
-            
+
     def connect(self):
         self._ocean = Ocean(
             keeper_url=self._config.ocean.keeper_url,
-            contracts_path=os.path.abspath(self._config.ocean.contracts_path),
+            contracts_path=self._config.ocean.contracts_path,
             gas_limit=self._config.ocean.gas_limit,
             log_level=logging.DEBUG
         )
+        print(self._config.squid_agent.as_dict)
+
         self._squid_agent = SquidAgent(self._ocean, self._config.squid_agent.as_dict)
 
         ddo_options = None
@@ -101,7 +103,7 @@ class OceanDrop:
         self._surfer_agent = SurferAgent(self._ocean, did=ddo.did, ddo=ddo, options=options)
 
         return self._ocean, self._squid_agent, self._surfer_agent
-        
+
     def publish_file(self, filename, file_hash, relative_filename):
 
         listing_data = self.generate_listing_data(file_hash, self._config.main.drop_secret)
@@ -115,7 +117,7 @@ class OceanDrop:
 
         publish_account = self._ocean.get_account(self._config.publish.account_address, self._config.publish.account_password)
         download_link = asset_store.did
-        
+
         resourceId = base64.b64encode(relative_filename.encode()).decode('utf-8')
         asset_sale = RemoteAsset(metadata={'resourceId': resourceId}, url=download_link)
         listing = self._squid_agent.register_asset(asset_sale, listing_data, publish_account)
@@ -132,7 +134,7 @@ class OceanDrop:
         except StarfishAssetNotFound:
             logger.warn(f'Unable to find asset {listing.listing_id} on the network')
             return False
-            
+
         if purchase.is_purchase_valid:
             purchase_asset = purchase.consume_asset
             surfer_did, asset_id = self._surfer_agent.decode_asset_did(purchase_asset.url)
@@ -148,15 +150,15 @@ class OceanDrop:
                     logger.info(f'creating folder {folder}')
                     os.makedirs(folder)
             logger.info(f'saving file to {filename}')
-                
+
             # save the data
             # asset_store.save(filename)
             with open(filename, 'wb') as fp:
                 fp.write(asset_store.data)
-                
+
             return True
         return False
-        
+
     def auto_topup_account(self, account):
         min_ocean_balance = int(self._config.auto_topup.min_ocean_balance)
         topup_ocean_balance = int(self._config.auto_topup.topup_ocean_balance)
@@ -187,4 +189,3 @@ below the minimum allowed, so auto top up of account with ocean tokens')
             'tags': [self._config.main.search_tag],
         }
         return data
-
