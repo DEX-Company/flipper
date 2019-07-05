@@ -89,7 +89,6 @@ class OceanDrop:
             gas_limit=self._config.ocean.gas_limit,
             log_level=logging.DEBUG
         )
-        print(self._config.squid_agent.as_dict)
 
         self._squid_agent = SquidAgent(self._ocean, self._config.squid_agent.as_dict)
 
@@ -140,7 +139,6 @@ class OceanDrop:
             surfer_did, asset_id = self._surfer_agent.decode_asset_did(purchase_asset.url)
             download_url = self._surfer_agent.get_asset_store_url(asset_id)
             asset_store = self._surfer_agent.download_asset(asset_id, download_url)
-            print('found asset store', asset_store.metadata)
             filename = os.path.join(os.path.abspath(drop_path), asset_store.metadata['filename'])
             if 'resourceId' in purchase_asset.metadata:
                 relative_filename = base64.b64decode(purchase_asset.metadata['resourceId']).decode('utf-8')

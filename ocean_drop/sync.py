@@ -119,6 +119,9 @@ class Sync():
             f'Available to consume:  {self._stats["consume_count"]}',
             f'Available to publish: {self._stats["publish_count"]}',
         ]
+        print(self._publish_list)
+        for listing in self._consume_list:
+            print(listing.data)
         return result
 
     @property
