@@ -7,6 +7,7 @@ import sys
 
 from ocean_drop.config_reader import ConfigReader
 from ocean_drop import OceanDrop
+from ocean_drop.utils import show_size_as_text
 
 DEFAULT_CONFIG_FILENAME = './ocean_drop.conf'
 DEFAULT_MAX_COUNT = 0
@@ -23,7 +24,23 @@ def show_command_help():
     print('Command              Description')
     for name, line in COMMAND_LIST.items():
         print(f'{name:20} {line}\n')
-        
+
+
+def show_sync_satus(sync):
+
+    stats = sync.stats
+    total_space_text = show_size_as_text(stats['total_size'])
+    result = [
+        f'Total files: {stats["file_count"]}',
+        f'Total disk space used: {total_space_text}',
+        f'Published: {stats["sync_count"]}',
+        f'Available to consume:  {stats["consume_count"]}',
+        f'Available to publish: {stats["publish_count"]}',
+    ]
+    print(sync.publish_list)
+    for listing in sync.consume_list:
+        print(listing.data)
+    return result
 
 def main():
     parser = argparse.ArgumentParser('Ocean Drop')
@@ -48,14 +65,14 @@ def main():
         action='store_true',
         help='show debug log',
     )
-    
+
     parser.add_argument(
         '-m', '--max',
         type=int,
         help=f'Only consume/publish maximum number of assets. Default: {DEFAULT_MAX_COUNT} ( 0 = No limit )',
         default=DEFAULT_MAX_COUNT,
     )
-    
+
     parser.add_argument(
         '--help-commands',
         action='store_true',
@@ -66,7 +83,7 @@ def main():
     if args.help_commands:
         show_command_help()
         return
-        
+
     config = ConfigReader()
     config.read(args.config)
 
@@ -81,7 +98,7 @@ def main():
 
     logger.info(f'drop folder is {config.main.drop_path}')
     ocean_drop = OceanDrop(config)
-    
+
     if args.drop_command:
         command_text = args.drop_command.lower()[:3]
         if command_text == 'pub':
@@ -89,7 +106,11 @@ def main():
         elif command_text == 'con':
             ocean_drop.consume(args.max)
         elif command_text == 'sta':
-            ocean_drop.status()
+            sync = ocean_drop.get_sync
+            if sync:
+                show_sync_satus(sync)
+            else:
+                print('cannot connect to get the status')
         elif command_text == 'wat':
             ocean_drop.process_payment_events()
         else:

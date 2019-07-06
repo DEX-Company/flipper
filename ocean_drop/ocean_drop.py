@@ -72,11 +72,13 @@ class OceanDrop:
             while True:
                 time.sleep(1)
 
-    def status(self):
+    @property
+    def get_sync:
         if self.connect():
             sync = Sync(self._ocean, self._squid_agent)
             sync.analyse(self._config.main.drop_path, self._config.main.drop_secret, self._config.main.search_tag)
-            print('\n'.join(sync.stats_to_text_list))
+            return sync
+        return None
 
     def topup(self):
         if self.connect():

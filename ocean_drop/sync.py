@@ -1,7 +1,7 @@
 """
 
-    Sync Class 
-    
+    Sync Class
+
     Sync between a folder and Ocean assets
 
 """
@@ -36,7 +36,7 @@ class Sync():
         for file_item in self._file_list:
             if file_item['is_file']:
                 file_count += 1
-                
+
         total_size_text = show_size_as_text(total_size)
         logger.debug(f' found {len(self._file_list)} files with a total size of {total_size_text}')
 
@@ -108,7 +108,7 @@ class Sync():
                 return extra_data['file_hash'] == file_hash
         return False
 
-        
+
     @property
     def stats_to_text_list(self):
         total_space_text = show_size_as_text(self._stats['total_size'])
@@ -119,31 +119,28 @@ class Sync():
             f'Available to consume:  {self._stats["consume_count"]}',
             f'Available to publish: {self._stats["publish_count"]}',
         ]
-        print(self._publish_list)
-        for listing in self._consume_list:
-            print(listing.data)
         return result
 
     @property
     def file_list(self):
         return self._file_list
-        
+
     @property
     def listing_list(self):
         return self._listing_list
-        
+
     @property
     def sync_file_list(self):
         return _sync_file_list
-        
+
     @property
     def consume_list(self):
         return self._consume_list
-        
+
     @property
     def publish_list(self):
         return self._publish_list
-        
+
     @property
     def stats(self):
         return self._stats
