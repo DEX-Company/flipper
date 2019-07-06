@@ -5,7 +5,7 @@ import logging
 import pathlib
 import datetime
 
-from ocean_drop.config_reader import ConfigReader
+from ocean_drop_lib.config_reader import ConfigReader
 
 
 from starfish import Ocean

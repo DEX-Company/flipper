@@ -23,8 +23,8 @@ from starfish.asset import (
 
 from starfish.exceptions import StarfishAssetNotFound
 
-from ocean_drop.sync import Sync
-from ocean_drop.utils import generate_listing_checksum
+from ocean_drop_lib.sync import Sync
+from ocean_drop_lib.utils import generate_listing_checksum
 
 logger = logging.getLogger('ocean_drop')
 

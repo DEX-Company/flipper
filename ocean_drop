@@ -5,9 +5,9 @@ import argparse
 import logging
 import sys
 
-from ocean_drop.config_reader import ConfigReader
-from ocean_drop import OceanDrop
-from ocean_drop.utils import show_size_as_text
+from ocean_drop_lib.config_reader import ConfigReader
+from ocean_drop_lib import OceanDrop
+from ocean_drop_lib.utils import show_size_as_text
 
 DEFAULT_CONFIG_FILENAME = './ocean_drop.conf'
 DEFAULT_MAX_COUNT = 0

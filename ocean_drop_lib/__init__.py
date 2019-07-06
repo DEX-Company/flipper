@@ -16,6 +16,6 @@ __version__ = '0.0.1'
 # add handler to logger
 # logger.addHandler(handler)
 
-from ocean_drop.ocean_drop import OceanDrop
+from ocean_drop_lib.ocean_drop import OceanDrop
 
 

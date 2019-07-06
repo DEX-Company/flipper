@@ -8,7 +8,7 @@
 
 import logging
 
-from ocean_drop.utils import (
+from ocean_drop_lib.utils import (
     read_file_list,
     show_size_as_text,
     generate_listing_checksum,
