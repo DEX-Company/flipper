@@ -39,10 +39,17 @@ def show_sync_satus(sync):
     ]
     print('\n'.join(result))
 
-#    print(sync.publish_list)
-#    for listing in sync.consume_list:
-#        print(listing.data)
-#    return result
+    print('\nPublish files waiting for upload')
+    print('-' * 40)
+    for filename in sync.publish_file_list:
+        print(filename)
+    print(f'Found {stats["publish_count"]} publish files')
+
+    print('\nConsume files waiting to download')
+    print('-' * 40)
+    for filename in sync.consume_file_list:
+        print(filename)
+    print(f'Found {stats["consume_count"]} consume files')
 
 def main():
     parser = argparse.ArgumentParser('Ocean Drop')

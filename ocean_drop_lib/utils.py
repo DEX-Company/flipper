@@ -4,6 +4,7 @@
 
 
 """
+import base64
 import math
 import os
 import logging
@@ -80,3 +81,13 @@ def show_size_as_text(size):
 
 def generate_listing_checksum(nonce, drop_secret):
     return Web3.toHex(Web3.sha3(text=f'{nonce}{drop_secret}'))
+
+def get_filename_from_metadata(metadata):
+    filename = None
+    if 'filename' in metadata:
+        filename = metadata['filename']
+    if 'files' in metadata and isinstance(metadata['files'], list):
+        asset_item = metadata['files'][0]
+        if 'resourceId' in asset_item:
+            filename = base64.b64decode(asset_item['resourceId']).decode('utf-8')
+    return filename

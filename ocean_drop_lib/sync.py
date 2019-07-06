@@ -12,6 +12,7 @@ from ocean_drop_lib.utils import (
     read_file_list,
     show_size_as_text,
     generate_listing_checksum,
+    get_filename_from_metadata,
 )
 
 logger = logging.getLogger('ocean_drop.sync')
@@ -25,6 +26,8 @@ class Sync():
         self._sync_file_list = []
         self._consume_list = []
         self._publish_list = []
+        self._consume_file_list = []
+        self._publish_file_list = []
         self._stats = {}
 
 
@@ -56,6 +59,8 @@ class Sync():
         self._sync_file_list = []
         self._consume_list = []
         self._publish_list = []
+        self._consume_file_list = []
+        self._publish_file_list = []
 
         for listing in self._listing_list:
             is_found = False
@@ -67,6 +72,8 @@ class Sync():
                         break
             if not is_found:
                 self._consume_list.append(listing)
+                filename = get_filename_from_metadata(listing.asset.metadata['base'])
+                self._consume_file_list.append(filename)
 
         for file_item in self._file_list:
             if file_item['is_file'] and file_item['size'] > 0:
@@ -77,6 +84,8 @@ class Sync():
                         break
                 if not is_found:
                     self._publish_list.append(file_item)
+                    self._publish_file_list.append(file_item['relative_filename'])
+
 
     def get_valid_listings(self, asset_tag, drop_secret):
         result = []
@@ -138,8 +147,16 @@ class Sync():
         return self._consume_list
 
     @property
+    def consume_file_list(self):
+        return self._consume_file_list
+
+    @property
     def publish_list(self):
         return self._publish_list
+
+    @property
+    def publish_file_list(self):
+        return self._publish_file_list
 
     @property
     def stats(self):
