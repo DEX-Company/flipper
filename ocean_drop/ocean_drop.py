@@ -73,7 +73,7 @@ class OceanDrop:
                 time.sleep(1)
 
     @property
-    def get_sync:
+    def get_sync(self):
         if self.connect():
             sync = Sync(self._ocean, self._squid_agent)
             sync.analyse(self._config.main.drop_path, self._config.main.drop_secret, self._config.main.search_tag)
