@@ -37,10 +37,12 @@ def show_sync_satus(sync):
         f'Available to consume:  {stats["consume_count"]}',
         f'Available to publish: {stats["publish_count"]}',
     ]
-    print(sync.publish_list)
-    for listing in sync.consume_list:
-        print(listing.data)
-    return result
+    print('\n'.join(result))
+
+#    print(sync.publish_list)
+#    for listing in sync.consume_list:
+#        print(listing.data)
+#    return result
 
 def main():
     parser = argparse.ArgumentParser('Ocean Drop')
