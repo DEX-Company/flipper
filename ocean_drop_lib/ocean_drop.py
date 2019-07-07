@@ -73,7 +73,7 @@ class OceanDrop:
                             is_consume = True
                         else:
                             if self.consume_asset(listing, self._config.main.drop_path):
-                                is_consume = true
+                                is_consume = True
                         if is_consume:
                             counter += 1
                             if counter >= max_count and max_count > 0:
