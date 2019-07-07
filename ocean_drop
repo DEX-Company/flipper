@@ -87,6 +87,17 @@ def main():
         action='store_true',
         help='show the help for the possible commands'
     )
+
+    parser.add_argument(
+        '--name',
+        help='publish or consume a file matching with the name provided'
+    )
+
+    parser.add_argument(
+        '-n', '--dry-run',
+        action='store_true',
+        help='if enabled then process as a publish or consume but do not change any files'
+    )
     args = parser.parse_args()
 
     if args.help_commands:
@@ -111,9 +122,9 @@ def main():
     if args.drop_command:
         command_text = args.drop_command.lower()[:3]
         if command_text == 'pub':
-            ocean_drop.publish(args.max)
+            ocean_drop.publish(args.max, args.name, args.dry_run)
         elif command_text == 'con':
-            ocean_drop.consume(args.max)
+            ocean_drop.consume(args.max, args.name, args.dry_run)
         elif command_text == 'sta':
             sync = ocean_drop.get_sync
             if sync:

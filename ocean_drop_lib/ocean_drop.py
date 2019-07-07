@@ -10,6 +10,7 @@ import secrets
 import json
 import time
 import base64
+import re
 
 from starfish import Ocean
 from starfish.agent import (
@@ -24,7 +25,10 @@ from starfish.asset import (
 from starfish.exceptions import StarfishAssetNotFound
 
 from ocean_drop_lib.sync import Sync
-from ocean_drop_lib.utils import generate_listing_checksum
+from ocean_drop_lib.utils import (
+    generate_listing_checksum,
+    get_filename_from_metadata
+)
 
 logger = logging.getLogger('ocean_drop')
 
@@ -36,31 +40,44 @@ class OceanDrop:
         self._surfer_agent = None
 
 
-    def publish(self, max_count=0):
+    def publish(self, max_count=0, filter_name=None, dry_run=None):
         if self.connect():
             sync = Sync(self._ocean, self._squid_agent)
             sync.analyse(self._config.main.drop_path, self._config.main.drop_secret, self._config.main.search_tag)
             if sync.publish_list:
                 counter = 0
                 for file_item in sync.publish_list:
-                    logger.info(f'publishing file {file_item["filename"]}')
-                    self.publish_file(file_item['filename'], file_item['md5_hash'], file_item['relative_filename'])
-                    counter += 1
-                    if counter >= max_count and max_count > 0:
-                        break
+                    if filter_name is None or re.match(filter_name, file_item['filename']):
+                        if dry_run:
+                            logger.info(f'will publish file {file_item["filename"]}')
+                        else:
+                            logger.info(f'publishing file {file_item["filename"]}')
+                            self.publish_file(file_item['filename'], file_item['md5_hash'], file_item['relative_filename'])
+                        counter += 1
+                        if counter >= max_count and max_count > 0:
+                            break
 
 
-    def consume(self, max_count=0):
+    def consume(self, max_count=0, filter_name=None, dry_run=None):
         if self.connect():
             sync = Sync(self._ocean, self._squid_agent)
             sync.analyse(self._config.main.drop_path, self._config.main.drop_secret, self._config.main.search_tag)
             if sync.consume_list:
                 counter = 0
                 for listing in sync.consume_list:
-                    if self.consume_asset(listing, self._config.main.drop_path):
-                        counter += 1
-                        if counter >= max_count and max_count > 0:
-                            break
+                    filename = get_filename_from_metadata(listing.asset.metadata['base'])
+                    if filter_name is None or re.match(filter_name, filename):
+                        is_consume = False
+                        if dry_run:
+                            logger.info(f'will consume {filename}')
+                            is_consume = True
+                        else:
+                            if self.consume_asset(listing, self._config.main.drop_path):
+                                is_consume = true
+                        if is_consume:
+                            counter += 1
+                            if counter >= max_count and max_count > 0:
+                                break
 
     def process_payment_events(self):
         if self.connect():
