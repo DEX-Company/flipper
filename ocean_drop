@@ -56,6 +56,7 @@ def main():
     command_list_text = '","'.join(COMMAND_LIST)
     parser.add_argument(
         'drop_command',
+        nargs='?',
         type=str,
         help=f'The type of commands: "{command_list_text}"',
     )
