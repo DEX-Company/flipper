@@ -4,6 +4,7 @@
 import argparse
 import logging
 import sys
+import os
 
 from ocean_drop_lib.config_reader import ConfigReader
 from ocean_drop_lib import OceanDrop
@@ -17,6 +18,7 @@ COMMAND_LIST = {
     'consume': 'Consume and download any new asset from the Ocean Newtwork.',
     'status': 'Show the status and stats of the number of files that need to be synced.',
     'watch': 'Watch for new consumer payment requests, to complete the consumer payment transactions.',
+    'account': 'Manage accounts you can add options "list" and "add"',
 }
 
 def show_command_help():
@@ -56,10 +58,11 @@ def main():
     command_list_text = '","'.join(COMMAND_LIST)
     parser.add_argument(
         'drop_command',
-        nargs='?',
+        nargs='*',
         type=str,
         help=f'The type of commands: "{command_list_text}"',
     )
+
     parser.add_argument(
         '-c', '--config',
         help=f'sets the config file. Default: {DEFAULT_CONFIG_FILENAME}',
@@ -70,6 +73,7 @@ def main():
         '-p', '--path',
         help=f'sets the drop or consume path to get or place the data files',
     )
+
     parser.add_argument(
         '-d', '--debug',
         action='store_true',
@@ -99,6 +103,7 @@ def main():
         action='store_true',
         help='if enabled then process as a publish or consume but do not change any files'
     )
+
     args = parser.parse_args()
 
     if args.help_commands:
@@ -106,6 +111,9 @@ def main():
         return
 
     config = ConfigReader()
+    if not os.path.exists(args.config):
+        print(f'cannot find config file "{args.config}"')
+        return
     config.read(args.config)
 
     logger = logging.getLogger('ocean_drop')
@@ -121,7 +129,7 @@ def main():
     ocean_drop = OceanDrop(config)
 
     if args.drop_command:
-        command_text = args.drop_command.lower()[:3]
+        command_text = args.drop_command[0].lower()[:3]
         if command_text == 'pub':
             ocean_drop.publish(args.max, args.name, args.dry_run)
         elif command_text == 'con':
@@ -134,6 +142,11 @@ def main():
                 print('cannot connect to get the status')
         elif command_text == 'wat':
             ocean_drop.process_payment_events()
+        elif command_text = 'acc':
+            if args.drop_command[1] == 'list':
+                ocean_drop.account_list()
+            elif args.drop_command[1] == 'add':
+                ocean_drop.account_add(args.drop_command[2])
         else:
             print(f'unknown command {args.drop_command}')
             show_command_help()

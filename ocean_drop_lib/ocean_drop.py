@@ -87,14 +87,6 @@ class OceanDrop:
             while True:
                 time.sleep(1)
 
-    @property
-    def get_sync(self):
-        if self.connect():
-            sync = Sync(self._ocean, self._squid_agent)
-            sync.analyse(self._config.main.drop_path, self._config.main.drop_secret, self._config.main.search_tag)
-            return sync
-        return None
-
     def topup(self):
         if self.connect():
             self.auto_topup_account
@@ -204,3 +196,11 @@ below the minimum allowed, so auto top up of account with ocean tokens')
             'tags': [self._config.main.search_tag],
         }
         return data
+
+    @property
+    def get_sync(self):
+        if self.connect():
+            sync = Sync(self._ocean, self._squid_agent)
+            sync.analyse(self._config.main.drop_path, self._config.main.drop_secret, self._config.main.search_tag)
+            return sync
+        return None
