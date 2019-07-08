@@ -142,11 +142,21 @@ def main():
                 print('cannot connect to get the status')
         elif command_text == 'wat':
             ocean_drop.process_payment_events()
-        elif command_text = 'acc':
+        elif command_text == 'acc':
             if args.drop_command[1] == 'list':
-                ocean_drop.account_list()
+                account_list = ocean_drop.account_list()
+                if account_list:
+                    for address, account in account_list.items():
+                        print(account)
             elif args.drop_command[1] == 'add':
-                ocean_drop.account_add(args.drop_command[2])
+                if not args.drop_command[2]:
+                    print('Please provide a password')
+                else:
+                    address = ocean_drop.account_add(args.drop_command[2])
+                    if address:
+                        print(f'created a new account {address}')
+                    else:
+                        print('failed to create a new account')
         else:
             print(f'unknown command {args.drop_command}')
             show_command_help()

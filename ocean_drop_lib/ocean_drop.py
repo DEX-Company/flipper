@@ -30,6 +30,8 @@ from ocean_drop_lib.utils import (
     get_filename_from_metadata
 )
 
+from eth_account import Account
+
 logger = logging.getLogger('ocean_drop')
 
 class OceanDrop:
@@ -165,6 +167,20 @@ class OceanDrop:
 
             return True
         return False
+
+    def account_add(self, password):
+        if self.connect():
+            account = self._ocean._web3.eth.account.create(password)
+            key_file = Account.encrypt(account.privateKey, password)
+            address = account.address
+            # address = self._ocean.create_account(password)
+            return key_file
+        return None
+
+    def account_list(self):
+        if self.connect():
+            return self._ocean.accounts
+        return None
 
     def auto_topup_account(self, account):
         min_ocean_balance = int(self._config.auto_topup.min_ocean_balance)
