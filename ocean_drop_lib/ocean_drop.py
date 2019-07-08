@@ -82,9 +82,7 @@ class OceanDrop:
     def process_payment_events(self):
         if self.connect():
             publish_account = self._ocean.get_account(self._config.publish.account_address, self._config.publish.account_password)
-            model = self._ocean.get_squid_model()
-            ocn = model.get_squid_ocean(publish_account)
-            ocn.agreements.watch_provider_events(publish_account._squid_account)
+            self._squid_agent.watch_provider_events(publish_account)
             logger.info('wait for transaction to be started')
             while True:
                 time.sleep(1)
