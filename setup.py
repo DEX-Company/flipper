@@ -14,7 +14,7 @@ with open('CHANGELOG.md') as changelog_file:
     changelog = changelog_file.read()
 
 install_requirements = [
-    'starfish-py==0.4.6',
+    'starfish-py==0.4.7',
 ]
 
 setup_requirements = ['pytest-runner', ]
@@ -38,15 +38,6 @@ dev_requirements = [
     'watchdog',
 ]
 
-docs_requirements = [
-    'Sphinx',
-    'sphinx-rtd-theme',
-    'sphinxcontrib-apidoc',
-    'sphinxcontrib-plantuml',
-    'sphinx-automodapi',
-    'pygments',
-]
-
 packages = []
 for d, _, _ in os.walk('ocean_drop_lib'):
     if os.path.exists(join(d, '__init__.py')):
@@ -67,7 +58,11 @@ setup(
         'test': test_requirements,
         'dev': dev_requirements + test_requirements,
     },
-    scripts=['ocean_drop'],
+    entry_points = {
+        'console_scripts': [
+            'ocean_drop = ocean_drom:main',
+        ],
+    },
     install_requires=install_requirements,
     license="Apache Software License 2.0",
     long_description=readme,
