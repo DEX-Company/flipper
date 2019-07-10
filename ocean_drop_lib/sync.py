@@ -72,7 +72,8 @@ class Sync():
                         break
             if not is_found:
                 self._consume_list.append(listing)
-                filename = get_filename_from_metadata(listing.asset.metadata['base'])
+                remote_asset = listing.asset.get_asset_at_index(0)
+                filename = get_filename_from_metadata(listing.ddo.metadata['base'])
                 self._consume_file_list.append(filename)
 
         for file_item in self._file_list:

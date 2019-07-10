@@ -67,7 +67,8 @@ class OceanDrop:
             if sync.consume_list:
                 counter = 0
                 for listing in sync.consume_list:
-                    filename = get_filename_from_metadata(listing.asset.metadata['base'])
+                    filename = "test"
+                    # filename = get_filename_from_metadata(listing.asset.metadata['base'])
                     if filter_name is None or re.match(filter_name, filename):
                         is_consume = False
                         if dry_run:
@@ -147,12 +148,13 @@ class OceanDrop:
 
         if purchase.is_purchase_valid:
             purchase_asset = purchase.consume_asset
-            surfer_did, asset_id = self._surfer_agent.decode_asset_did(purchase_asset.url)
+            remote_asset = purchase_asset.get_asset_at_index(0)
+            surfer_did, asset_id = self._surfer_agent.decode_asset_did(remote_asset.url)
             download_url = self._surfer_agent.get_asset_store_url(asset_id)
             asset_store = self._surfer_agent.download_asset(asset_id, download_url)
-            filename = os.path.join(os.path.abspath(drop_path), asset_store.metadata['filename'])
-            if 'resourceId' in purchase_asset.metadata:
-                relative_filename = base64.b64decode(purchase_asset.metadata['resourceId']).decode('utf-8')
+            filename = os.path.join(os.path.abspath(drop_path), get_filename_from_metadata(listing.ddo.metadata['base']))
+            if 'resourceId' in remote_asset.metadata:
+                relative_filename = base64.b64decode(remote_asset.metadata['resourceId']).decode('utf-8')
                 filename = os.path.join(os.path.abspath(drop_path), relative_filename)
                 folder = os.path.dirname(filename)
                 if not os.path.exists(folder):
