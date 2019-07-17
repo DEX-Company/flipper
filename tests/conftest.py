@@ -27,7 +27,7 @@ TEST_LISTING_DATA = {
     'dateCreated': datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ'),
     'author': 'Test starfish',
     'license': 'Closed',
-    'price': 1000,
+    'price': 1,
     'extra_data': 'Some extra data',
     'tags': ['asset', 'sale', 'test', 'starfish'],
 }
