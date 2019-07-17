@@ -12,11 +12,21 @@ import secrets
 import logging
 import json
 import base64
+import time
 
 from starfish.asset import (
     FileAsset,
     RemoteAsset,
+    BundleAsset
 )
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+
+def is_purchase_valid(did, agreement, publish_account, consumer_account):
+    logger.debug(f'is purchase allowed {did}, {agreement_id}, {publish_account}, {conusmer_account}')
+    return True
 
 def test_file_transfer(ocean, config, resources, surfer_agent, squid_agent):
 
@@ -34,6 +44,10 @@ def test_file_transfer(ocean, config, resources, surfer_agent, squid_agent):
 
     # now register the asset link to surfer in squid
     publish_account = ocean.get_account(config.publish.account_address, config.publish.account_password)
+
+    # check to see if this account is hosted on the block chain node
+    # assert(publish_account.is_hosted)
+
     download_link = asset_store.did
     resourceId = base64.b64encode(bytes(resources.asset_file)).decode('utf-8')
 
@@ -53,11 +67,12 @@ def test_file_transfer(ocean, config, resources, surfer_agent, squid_agent):
     # request the tokens to buy the asset
     consume_account.request_tokens(10)
 
-    squid_agent.watch_provider_events(publish_account)
-
     # purchase the linked remote asset
     purchase = listing.purchase(consume_account)
     assert(purchase)
+
+    squid_agent.start_agreement_events_monitor(publish_account)
+
 
     assert(not purchase.is_completed)
 
