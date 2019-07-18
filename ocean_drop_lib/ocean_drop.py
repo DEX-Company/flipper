@@ -196,6 +196,7 @@ class OceanDrop:
 below the minimum allowed, so auto top up of account with ocean tokens')
             account.unlock()
             account.request_tokens(topup_ocean_balance)
+            logger.info(f'account {account.address} current balance is now {account.ocean_balance}')
 
     def generate_listing_data(self, file_hash, drop_secret):
         nonce = secrets.token_hex(32)

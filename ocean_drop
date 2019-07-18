@@ -130,9 +130,9 @@ def main():
 
     if args.drop_command:
         command_text = args.drop_command[0].lower()[:3]
-        if command_text == 'pub':
+        if command_text == 'upl':
             ocean_drop.upload(args.max, args.name, args.dry_run)
-        elif command_text == 'con':
+        elif command_text == 'dow':
             ocean_drop.download(args.max, args.name, args.dry_run)
         elif command_text == 'sta':
             sync = ocean_drop.get_sync
