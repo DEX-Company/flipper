@@ -24,8 +24,8 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
-def is_purchase_valid(did, agreement, publish_account, consumer_account):
-    logger.debug(f'is purchase allowed {did}, {agreement_id}, {publish_account}, {conusmer_account}')
+def is_purchase_valid(did, agreement_id, publisher_account, consumer_account):
+    logger.debug(f'is purchase allowed {did}, {agreement_id}, {publisher_account}, {consumer_account}')
     return True
 
 def test_file_transfer(ocean, config, resources, surfer_agent, squid_agent):
@@ -43,36 +43,36 @@ def test_file_transfer(ocean, config, resources, surfer_agent, squid_agent):
     surfer_agent.upload_asset(asset_store)
 
     # now register the asset link to surfer in squid
-    publish_account = ocean.get_account(config.publish.account_address, config.publish.account_password)
+    download_account = ocean.get_account(config.download.account_address, config.download.account_password)
 
     # check to see if this account is hosted on the block chain node
-    # assert(publish_account.is_hosted)
+    assert(download_account.is_hosted)
 
     download_link = asset_store.did
     resourceId = base64.b64encode(bytes(resources.asset_file)).decode('utf-8')
 
     asset_sale = RemoteAsset(metadata={'resourceId': resourceId}, url=download_link)
     # print('metadata ',squid_agent._convert_listing_asset_to_metadata(asset_sale, resources.listing_data))
-    listing = squid_agent.register_asset(asset_sale, resources.listing_data, account=publish_account)
+    listing = squid_agent.register_asset(asset_sale, resources.listing_data, account=download_account)
     assert(listing)
 
     # now re-read the listing to make sure that we get the same result and listing data
     listing = squid_agent.get_listing(listing.listing_id)
 
     # now start the purchase part
-    # setup the consume account
-    consume_account = ocean.get_account(config.consume.account_address, config.consume.account_password)
-    logging.info(f'conusme_account {consume_account.ocean_balance}')
-    consume_account.unlock()
+    # setup the download account
+    download_account = ocean.get_account(config.download.account_address, config.download.account_password)
+    logging.info(f'download_account {download_account.ocean_balance}')
+    download_account.unlock()
     # request the tokens to buy the asset
-    consume_account.request_tokens(10)
+    download_account.request_tokens(10)
+
+    # watch for purchasing events by the downloader below, and accept them
+    squid_agent.start_agreement_events_monitor(download_account)
 
     # purchase the linked remote asset
-    purchase = listing.purchase(consume_account)
+    purchase = listing.purchase(download_account)
     assert(purchase)
-
-    squid_agent.start_agreement_events_monitor(publish_account)
-
 
     assert(not purchase.is_completed)
 

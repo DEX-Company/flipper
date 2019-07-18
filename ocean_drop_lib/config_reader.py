@@ -37,11 +37,11 @@ class ConfigReader():
             'description': 'Not for public sale',
             'price': 1,
         },
-        'publish': {
+        'upload': {
             'account_address': None,
             'account_password': None,
         },
-        'consume': {
+        'download': {
             'account_address': None,
             'account_password': None,
         },
@@ -51,7 +51,7 @@ class ConfigReader():
             'secret_store_url': '${main:network_url}:12001',
             'parity_url': '${main:network_url}:8545',
             'storage_path': 'squid_py.db',
-            'download_path': 'consume_downloads',
+            'download_path': 'download_files',
         },
         'surfer agent': {
             'url': '${main:network_url}:8080',

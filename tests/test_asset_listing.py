@@ -18,7 +18,7 @@ from starfish.asset import (
 
 def test_asset_listing(ocean, config, resources, surfer_agent, squid_agent):
 
-    publish_account = ocean.get_account(config.publish.account_address, config.publish.account_password)
+    upload_account = ocean.get_account(config.upload.account_address, config.upload.account_password)
 
     # for the use case , we need to assign a unique id to the asset
     # so we know that it's from the publisher
@@ -30,7 +30,7 @@ def test_asset_listing(ocean, config, resources, surfer_agent, squid_agent):
     dummy_url = 'op:did:{dummy_did}/{dummy_asset_id}'
 
     # now create a checksum so that we know this actually comes from the correct publisher
-    valid_check = Web3.toHex(Web3.sha3(text=f'{unique_pd_case_id}{dummy_url}{publish_account.address}'))
+    valid_check = Web3.toHex(Web3.sha3(text=f'{unique_pd_case_id}{dummy_url}{upload_account.address}'))
 
     listing_data = {
         'name': 'Test file asset',
@@ -46,7 +46,7 @@ def test_asset_listing(ocean, config, resources, surfer_agent, squid_agent):
     }
     asset_sale = RemoteAsset(url=dummy_url)
     # print('metadata ',squid_agent._convert_listing_asset_to_metadata(asset_sale, listing_data))
-    listing = squid_agent.register_asset(asset_sale, listing_data, account=publish_account)
+    listing = squid_agent.register_asset(asset_sale, listing_data, account=upload_account)
     assert(listing)
 
     listing_items = squid_agent.search_listings({'tags': [pd_test_case_tag]})

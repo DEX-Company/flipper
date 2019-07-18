@@ -42,50 +42,50 @@ class OceanDrop:
         self._surfer_agent = None
 
 
-    def publish(self, max_count=0, filter_name=None, dry_run=None):
+    def upload(self, max_count=0, filter_name=None, dry_run=None):
         if self.connect():
             sync = Sync(self._ocean, self._squid_agent)
             sync.analyse(self._config.main.drop_path, self._config.main.drop_secret, self._config.main.search_tag)
-            if sync.publish_list:
+            if sync.upload_list:
                 counter = 0
-                for file_item in sync.publish_list:
+                for file_item in sync.upload_list:
                     if filter_name is None or re.match(filter_name, file_item['filename']):
                         if dry_run:
-                            logger.info(f'will publish file {file_item["filename"]}')
+                            logger.info(f'will upload file {file_item["filename"]}')
                         else:
-                            logger.info(f'publishing file {file_item["filename"]}')
-                            self.publish_file(file_item['filename'], file_item['md5_hash'], file_item['relative_filename'])
+                            logger.info(f'uploading file {file_item["filename"]}')
+                            self.upload_file(file_item['filename'], file_item['md5_hash'], file_item['relative_filename'])
                         counter += 1
                         if counter >= max_count and max_count > 0:
                             break
 
 
-    def consume(self, max_count=0, filter_name=None, dry_run=None):
+    def download(self, max_count=0, filter_name=None, dry_run=None):
         if self.connect():
             sync = Sync(self._ocean, self._squid_agent)
             sync.analyse(self._config.main.drop_path, self._config.main.drop_secret, self._config.main.search_tag)
-            if sync.consume_list:
+            if sync.download_list:
                 counter = 0
-                for listing in sync.consume_list:
+                for listing in sync.download_list:
                     filename = "test"
                     # filename = get_filename_from_metadata(listing.asset.metadata['base'])
                     if filter_name is None or re.match(filter_name, filename):
-                        is_consume = False
+                        is_download = False
                         if dry_run:
-                            logger.info(f'will consume {filename}')
-                            is_consume = True
+                            logger.info(f'will download {filename}')
+                            is_download = True
                         else:
-                            if self.consume_asset(listing, self._config.main.drop_path):
-                                is_consume = True
-                        if is_consume:
+                            if self.download_asset(listing, self._config.main.drop_path):
+                                is_download = True
+                        if is_download:
                             counter += 1
                             if counter >= max_count and max_count > 0:
                                 break
 
     def process_payment_events(self):
         if self.connect():
-            publish_account = self._ocean.get_account(self._config.publish.account_address, self._config.publish.account_password)
-            self._squid_agent.watch_provider_events(publish_account)
+            upload_account = self._ocean.get_account(self._config.upload.account_address, self._config.upload.account_password)
+            self._squid_agent.start_agreement_events_monitor(upload_account)
             logger.info('wait for transaction to be started')
             while True:
                 time.sleep(1)
@@ -115,7 +115,7 @@ class OceanDrop:
 
         return self._ocean, self._squid_agent, self._surfer_agent
 
-    def publish_file(self, filename, file_hash, relative_filename):
+    def upload_file(self, filename, file_hash, relative_filename):
 
         listing_data = self.generate_listing_data(file_hash, self._config.main.drop_secret)
 
@@ -126,20 +126,20 @@ class OceanDrop:
         # now upload to the storage
         self._surfer_agent.upload_asset(asset_store)
 
-        publish_account = self._ocean.get_account(self._config.publish.account_address, self._config.publish.account_password)
+        upload_account = self._ocean.get_account(self._config.upload.account_address, self._config.upload.account_password)
         download_link = asset_store.did
 
         resourceId = base64.b64encode(relative_filename.encode()).decode('utf-8')
         asset_sale = RemoteAsset(metadata={'resourceId': resourceId}, url=download_link)
-        listing = self._squid_agent.register_asset(asset_sale, listing_data, publish_account)
+        listing = self._squid_agent.register_asset(asset_sale, listing_data, upload_account)
         return listing
 
-    def consume_asset(self, listing, drop_path):
-        consume_account = self._ocean.get_account(self._config.consume.account_address, self._config.consume.account_password)
-        self.auto_topup_account(consume_account)
+    def download_asset(self, listing, drop_path):
+        download_account = self._ocean.get_account(self._config.download.account_address, self._config.download.account_password)
+        self.auto_topup_account(download_account)
         logger.info(f'purchasing asset {listing.listing_id}')
         try:
-            purchase = listing.purchase(consume_account)
+            purchase = listing.purchase(download_account)
             if not purchase.is_completed:
                 purchase.wait_for_completion()
         except StarfishAssetNotFound:

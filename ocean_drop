@@ -14,10 +14,10 @@ DEFAULT_CONFIG_FILENAME = './ocean_drop.conf'
 DEFAULT_MAX_COUNT = 0
 
 COMMAND_LIST = {
-    'publish': 'Publish a new files as assets onto the Ocean Network.',
-    'consume': 'Consume and download any new asset from the Ocean Newtwork.',
+    'upload': 'Upload a new files as assets onto the Ocean Network.',
+    'download': 'Download any new asset from the Ocean Newtwork.',
     'status': 'Show the status and stats of the number of files that need to be synced.',
-    'watch': 'Watch for new consumer payment requests, to complete the consumer payment transactions.',
+    'watch': 'Watch for new dowload consume payment requests, to complete the consumer payment transactions.',
     'account': 'Manage accounts you can add options "list" and "add"',
 }
 
@@ -35,23 +35,23 @@ def show_sync_satus(sync):
     result = [
         f'Total files: {stats["file_count"]}',
         f'Total disk space used: {total_space_text}',
-        f'Published: {stats["sync_count"]}',
-        f'Available to consume:  {stats["consume_count"]}',
-        f'Available to publish: {stats["publish_count"]}',
+        f'Uploaded: {stats["sync_count"]}',
+        f'Available to download:  {stats["download_count"]}',
+        f'Available to upload: {stats["upload_count"]}',
     ]
     print('\n'.join(result))
 
-    print('\nPublish files waiting for upload')
+    print('\nFiles waiting for upload')
     print('-' * 40)
-    for filename in sync.publish_file_list:
+    for filename in sync.upload_file_list:
         print(filename)
-    print(f'Found {stats["publish_count"]} publish files')
+    print(f'Found {stats["upload_count"]} files waiting to upload')
 
-    print('\nConsume files waiting to download')
+    print('\nFiles waiting to be downloaded')
     print('-' * 40)
-    for filename in sync.consume_file_list:
+    for filename in sync.download_file_list:
         print(filename)
-    print(f'Found {stats["consume_count"]} consume files')
+    print(f'Found {stats["download_count"]} files waiting to download')
 
 def main():
     parser = argparse.ArgumentParser('Ocean Drop')
@@ -71,7 +71,7 @@ def main():
 
     parser.add_argument(
         '-p', '--path',
-        help=f'sets the drop or consume path to get or place the data files',
+        help=f'sets the upload or download path to get or place the data files',
     )
 
     parser.add_argument(
@@ -83,7 +83,7 @@ def main():
     parser.add_argument(
         '-m', '--max',
         type=int,
-        help=f'Only consume/publish maximum number of assets. Default: {DEFAULT_MAX_COUNT} ( 0 = No limit )',
+        help=f'Only upload/download maximum number of assets. Default: {DEFAULT_MAX_COUNT} ( 0 = No limit )',
         default=DEFAULT_MAX_COUNT,
     )
 
@@ -95,13 +95,13 @@ def main():
 
     parser.add_argument(
         '--name',
-        help='publish or consume a file matching with the name provided'
+        help='Upload or download a file matching with the name provided'
     )
 
     parser.add_argument(
         '-n', '--dry-run',
         action='store_true',
-        help='if enabled then process as a publish or consume but do not change any files'
+        help='if enabled then process as a upload or download but do not change any files'
     )
 
     args = parser.parse_args()
@@ -131,9 +131,9 @@ def main():
     if args.drop_command:
         command_text = args.drop_command[0].lower()[:3]
         if command_text == 'pub':
-            ocean_drop.publish(args.max, args.name, args.dry_run)
+            ocean_drop.upload(args.max, args.name, args.dry_run)
         elif command_text == 'con':
-            ocean_drop.consume(args.max, args.name, args.dry_run)
+            ocean_drop.download(args.max, args.name, args.dry_run)
         elif command_text == 'sta':
             sync = ocean_drop.get_sync
             if sync:

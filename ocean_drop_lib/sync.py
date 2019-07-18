@@ -24,10 +24,10 @@ class Sync():
         self._file_list = []
         self._listing_list = []
         self._sync_file_list = []
-        self._consume_list = []
-        self._publish_list = []
-        self._consume_file_list = []
-        self._publish_file_list = []
+        self._download_list = []
+        self._upload_list = []
+        self._download_file_list = []
+        self._upload_file_list = []
         self._stats = {}
 
 
@@ -49,18 +49,18 @@ class Sync():
             'file_count': file_count,
             'total_size': total_size,
             'sync_count': len(self._sync_file_list),
-            'consume_count': len(self._consume_list),
-            'publish_count': len(self._publish_list)
+            'download_count': len(self._download_list),
+            'upload_count': len(self._upload_list)
         }
         logger.debug(', '.join(self.stats_to_text_list))
         return self._stats
 
     def sync_lists(self):
         self._sync_file_list = []
-        self._consume_list = []
-        self._publish_list = []
-        self._consume_file_list = []
-        self._publish_file_list = []
+        self._download_list = []
+        self._upload_list = []
+        self._download_file_list = []
+        self._upload_file_list = []
 
         for listing in self._listing_list:
             is_found = False
@@ -71,10 +71,10 @@ class Sync():
                         is_found = True
                         break
             if not is_found:
-                self._consume_list.append(listing)
+                self._download_list.append(listing)
                 remote_asset = listing.asset.get_asset_at_index(0)
                 filename = get_filename_from_metadata(listing.ddo.metadata['base'])
-                self._consume_file_list.append(filename)
+                self._download_file_list.append(filename)
 
         for file_item in self._file_list:
             if file_item['is_file'] and file_item['size'] > 0:
@@ -84,8 +84,8 @@ class Sync():
                         is_found = True
                         break
                 if not is_found:
-                    self._publish_list.append(file_item)
-                    self._publish_file_list.append(file_item['relative_filename'])
+                    self._upload_list.append(file_item)
+                    self._upload_file_list.append(file_item['relative_filename'])
 
 
     def get_valid_listings(self, asset_tag, drop_secret):
@@ -125,9 +125,9 @@ class Sync():
         result = [
             f'Total files: {self._stats["file_count"]}',
             f'Total disk space used: {total_space_text}',
-            f'Published: {self._stats["sync_count"]}',
-            f'Available to consume:  {self._stats["consume_count"]}',
-            f'Available to publish: {self._stats["publish_count"]}',
+            f'Uploaded: {self._stats["sync_count"]}',
+            f'Available to download:  {self._stats["download_count"]}',
+            f'Available to upload: {self._stats["upload_count"]}',
         ]
         return result
 
@@ -144,20 +144,20 @@ class Sync():
         return _sync_file_list
 
     @property
-    def consume_list(self):
-        return self._consume_list
+    def download_list(self):
+        return self._download_list
 
     @property
-    def consume_file_list(self):
-        return self._consume_file_list
+    def download_file_list(self):
+        return self._download_file_list
 
     @property
-    def publish_list(self):
-        return self._publish_list
+    def upload_list(self):
+        return self._upload_list
 
     @property
-    def publish_file_list(self):
-        return self._publish_file_list
+    def upload_file_list(self):
+        return self._upload_file_list
 
     @property
     def stats(self):
