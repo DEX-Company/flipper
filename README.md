@@ -9,6 +9,8 @@ This script then publishes the new data files.
 The data consumer can then run the *Ocean Drop* script and automatically
 purchase and download any new data files into their own folder.
 
+The cli script can be found in the `cli` folder.
+
 
 ```
 usage: Ocean Drop [-h] [-c CONFIG] [-p PATH] [-d] [-m MAX] [--help-commands]
@@ -33,4 +35,35 @@ optional arguments:
                         provided
   -n, --dry-run         if enabled then process as a upload or download but do
                         not change any files
+```
+
+## Testing
+
+To test with a local Ocean network, you need to do the following:
+
+1. Setup the environment.
+```
+$ git clone https://github.com/DEX-Company/ocean-drop
+$ cd ocean_drop
+$ virtualenv venv
+$ source venv/bin/activate
+$ pip install -r requirements_dev.txt
+```
+
+2. In a seperate terminal download and run Dex barge at https://github.com/DEX-Company/barge
+
+```
+$ git clone https://github.com/DEX-Company/barge
+$ cd barge
+$ ./start_ocean.sh --no-brizo --no-pleuston --local-spree-node
+```
+
+3. Return to the first terminal with ocean-drop setup and run the contract wait script, to get the new contracts created on your local network
+```
+$ ./scripts/wait_for_migration_and_extract_keeper_artifacts.sh
+```
+
+4. Run the tests
+```
+$ pytest tests
 ```

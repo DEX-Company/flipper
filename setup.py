@@ -39,7 +39,7 @@ dev_requirements = [
 ]
 
 packages = []
-for d, _, _ in os.walk('ocean_drop_lib'):
+for d, _, _ in os.walk('ocean_drop'):
     if os.path.exists(join(d, '__init__.py')):
         packages.append(d.replace(os.path.sep, '.'))
 
@@ -53,14 +53,14 @@ setup(
         'Natural Language :: English',
         'Programming Language :: Python :: 3.6',
     ],
-    description="Oceanprotocol/Dex  - File Transfer: Ocean Drop",
+    description="Oceanprotocol/Dex  - File Transfer: Ocean DropBox",
     extras_require={
         'test': test_requirements,
         'dev': dev_requirements + test_requirements,
     },
     entry_points = {
         'console_scripts': [
-            'ocean_drop = ocean_drom:main',
+            'ocean_drop = cli/ocean_drop:main',
         ],
     },
     install_requires=install_requirements,
@@ -74,7 +74,7 @@ setup(
     setup_requires=setup_requirements,
     test_suite='tests',
     tests_require=test_requirements,
-    url='https://github.com/OceanProtocol/health.git',
+    url='https://github.com//DEX-Company/ocean-drop',
     version='0.0.1',
     zip_safe=False,
 )
