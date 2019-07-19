@@ -64,7 +64,7 @@ $ cd barge
 $ ./start_ocean.sh --no-brizo --no-pleuston --local-spree-node
 ```
 
-3. Return to the first terminal with ocean-drop setup and run the contract wait script, to get the new contracts created on your local network
+3. Return back to the first terminal with ocean-drop and run the contract wait script, to get the new contracts created on your local network
 ```
 $ ./scripts/wait_for_migration_and_extract_keeper_artifacts.sh
 ```
