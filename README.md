@@ -50,13 +50,15 @@ $ source venv/bin/activate
 $ pip install -r requirements_dev.txt
 ```
 
-2. In a seperate terminal download and run Dex barge at https://github.com/DEX-Company/barge
+2. In a seperate terminal download and run Dex barge from https://github.com/DEX-Company/barge using the local spree test network
 
 ```
 # if you are already in ocean_drop folder..
 $ cd ..
+
 # or go to the parent folder to install barge
 # cd $HOME/myprojecs
+
 $ git clone https://github.com/DEX-Company/barge
 $ cd barge
 $ ./start_ocean.sh --no-brizo --no-pleuston --local-spree-node
