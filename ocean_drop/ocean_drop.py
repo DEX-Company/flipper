@@ -99,7 +99,6 @@ class OceanDrop:
             keeper_url=self._config.ocean.keeper_url,
             contracts_path=self._config.ocean.contracts_path,
             gas_limit=self._config.ocean.gas_limit,
-            log_level=logging.DEBUG
         )
 
         self._squid_agent = SquidAgent(self._ocean, self._config.squid_agent.as_dict)
@@ -111,6 +110,7 @@ class OceanDrop:
             'username': self._config.surfer_agent.username,
             'password': self._config.surfer_agent.password,
         }
+        
         self._surfer_agent = SurferAgent(self._ocean, did=ddo.did, ddo=ddo, options=options)
 
         return self._ocean, self._squid_agent, self._surfer_agent

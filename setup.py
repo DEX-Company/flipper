@@ -3,9 +3,13 @@
 
 """The setup script."""
 
-from setuptools import setup
 import os
 from os.path import join
+
+from setuptools import (
+    setup,
+    find_packages,
+)
 
 with open('README.md') as readme_file:
     readme = readme_file.read()
@@ -38,11 +42,6 @@ dev_requirements = [
     'watchdog',
 ]
 
-packages = []
-for d, _, _ in os.walk('ocean_drop'):
-    if os.path.exists(join(d, '__init__.py')):
-        packages.append(d.replace(os.path.sep, '.'))
-
 setup(
     author="dex-company",
     author_email='devops@dex.sg',
@@ -58,11 +57,8 @@ setup(
         'test': test_requirements,
         'dev': dev_requirements + test_requirements,
     },
-    entry_points = {
-        'console_scripts': [
-            'ocean_drop = cli/ocean_drop:main',
-        ],
-    },
+    scripts=['cli/ocean_drop'],
+    data_files=['cli/ocean_drop_local.conf', 'cli/ocean_drop_nile.conf'],
     install_requires=install_requirements,
     license="Apache Software License 2.0",
     long_description=readme,
@@ -70,7 +66,8 @@ setup(
     include_package_data=True,
     keywords='ocean_drop',
     name='ocean_drop',
-    packages=packages,
+    packages=find_packages(),
+#    packages=packages,
     setup_requires=setup_requirements,
     test_suite='tests',
     tests_require=test_requirements,

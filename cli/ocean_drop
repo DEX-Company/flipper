@@ -35,7 +35,7 @@ def show_sync_satus(sync):
     result = [
         f'Total files: {stats["file_count"]}',
         f'Total disk space used: {total_space_text}',
-        f'Uploaded: {stats["sync_count"]}',
+        f'Uploaded/Downloaded: {stats["sync_count"]}',
         f'Available to download:  {stats["download_count"]}',
         f'Available to upload: {stats["upload_count"]}',
     ]
