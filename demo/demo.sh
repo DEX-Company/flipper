@@ -2,9 +2,27 @@
 
 OCEAN_DROP_FOLDER="../"
 DROP_FOLDER="test_drop"
+
+BLACK="\033[0;30m"
+BLUE="\033[0;34m"
+GREEN="\033[0;32m"
+GREY="\033[0;90m"
+CYAN="\033[0;36m"
+RED="\033[0;31m"
+PURPLE="\033[0;35m"
+BROWN="\033[0;33m"
+WHITE="\033[1;37m"
+COLOR_RESET="\033[0m"
+
 if [ ! -d demo-magic ]; then
     git clone git@github.com:paxtonhare/demo-magic.git
 fi
+
+if [ ! -d venv ]; then
+virtualenv venv
+fi
+source venv/bin/activate
+
 
 rm -f squid_py.db
 rm -rf artifacts
@@ -18,11 +36,12 @@ cp -r resources/data_files $DROP_FOLDER/upload
 cp $OCEAN_DROP_FOLDER/README.md $DROP_FOLDER/upload
 
 $OCEAN_DROP_FOLDER/scripts/wait_for_migration_and_extract_keeper_artifacts.sh
-source venv/bin/activate
+
 pushd $OCEAN_DROP_FOLDER
-pip install -r $OCEAN_DROP_FOLDER/requirements_dev.txt
+pip install -r requirements_dev.txt
 pip install pyfiglet
 popd
+
 
 rm ./ocean_drop
 ln -s $OCEAN_DROP_FOLDER/cli/ocean_drop .
@@ -43,9 +62,11 @@ fi
 . demo-magic/demo-magic.sh -n
 
 clear
+echo -e $GREEN
 pyfiglet 'Ocean Drop'
+echo -e $WHITE
 echo
-echo 'using: demo-magic https://github.com/paxtonhare/demo-magic'
+echo 'using: https://github.com/paxtonhare/demo-magic'
 wait
 echo
 echo 'What is Ocean Drop?'
