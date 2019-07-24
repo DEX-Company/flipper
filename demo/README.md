@@ -56,6 +56,7 @@ $ ./start_ocean.sh --no-brizo --no-pleuston --local-spree-node
 
 2. Go to another terminal with ocean-drop/demo and run the demo script
 ```
+$ cd ocean-drop/demo
 $ ./demo.sh
 ```
 
