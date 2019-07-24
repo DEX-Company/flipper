@@ -62,11 +62,8 @@ fi
 . demo-magic/demo-magic.sh -n
 
 clear
-echo -e $GREEN
-pyfiglet 'Ocean Drop'
-echo -e $WHITE
+pyfiglet 'Ocean Drop Demo'
 echo
-echo 'using: https://github.com/paxtonhare/demo-magic'
 wait
 echo
 echo 'What is Ocean Drop?'

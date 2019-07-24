@@ -108,3 +108,13 @@ echo ""
 echo ""
 echo "-------------------------------------------------------------------------"
 read -p "Auto topup"; clear
+echo "-------------------------------------------------------------------------"
+echo ""
+echo ""
+echo 'github repo for `ocean-drop` is at https://github.com/DEX-Company/ocean-drop'
+echo 'github repo for `starfish` library is at https://github.com/DEX-Company/starfish-py'
+echo 'github repo for `squid-py` library is at https://github.com/oceanprotocol/squid-py'
+echo ""
+echo ""
+echo "-------------------------------------------------------------------------"
+read -p "Find out more"; clear
