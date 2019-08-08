@@ -17,10 +17,7 @@ from starfish.agent import (
     SurferAgent,
     SquidAgent,
 )
-from starfish.asset import (
-    FileAsset,
-    RemoteAsset,
-)
+from starfish.asset import DataAsset
 
 from starfish.exceptions import StarfishAssetNotFound
 
@@ -183,7 +180,7 @@ class OceanDrop:
         listing_data = self.generate_listing_data(file_hash, self._config.main.drop_secret)
 
         # save the asset file to surfer
-        asset_store = FileAsset(filename=filename)
+        asset_store = DataAsset.create_from_file('FileAsset', filename)
         listing_store = self._surfer_agent.register_asset(asset_store, listing_data)
 
         # now upload to the storage
@@ -196,7 +193,7 @@ class OceanDrop:
         # build the 'resourceId', which will be the relative path and filename
         resourceId = base64.b64encode(relative_filename.encode()).decode('utf-8')
         # create a remoet asset for registration
-        asset_sale = RemoteAsset(metadata={'resourceId': resourceId}, url=download_link)
+        asset_sale = DataAsset.create_from_url('LinkAsset', download_link, metadata={'resourceId': resourceId})
         # register the asset with squid agent
         listing = self._squid_agent.register_asset(asset_sale, listing_data, upload_account)
         return listing
@@ -237,7 +234,7 @@ class OceanDrop:
             # get the first remote asset ( there will only be 1 )
             remote_asset = purchase_asset.get_asset_at_index(0)
             # get the 'url', in our case it's the full DID of the Surfer server and asset_id
-            surfer_did, asset_id = self._surfer_agent.decode_asset_did(remote_asset.url)
+            surfer_did, asset_id = self._surfer_agent.decode_asset_did(remote_asset.metadata['url'])
 
             # TODO: Resolve the `surfer_did` to the actual URL, at the moment we assume the URL is the same
             # as the local demo surfer URL. But later we will need to connect to  a new SurferAgent based on

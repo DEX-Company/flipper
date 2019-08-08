@@ -14,8 +14,6 @@ from starfish.agent import (
     SquidAgent,
 )
 
-from starfish.models.surfer_model import SurferModel
-
 TESTS_PATH = pathlib.Path.cwd() / 'tests'
 RESOURCES_PATH = TESTS_PATH / 'resources'
 CONFIG_FILE = TESTS_PATH / 'ocean_drop.conf'
