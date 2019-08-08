@@ -2,7 +2,8 @@
 
 # code highlighting
 
-PYGMENTIZE="pygmentize -O full,style=native"
+# PYGMENTIZE="pygmentize -O full,style=native"
+PYGMENTIZE="pygmentize -O full,styles=autumn"
 SRC_PATH=../
 clear
 
