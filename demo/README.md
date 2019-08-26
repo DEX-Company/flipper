@@ -1,6 +1,6 @@
 # Ocean Drop
 
-Python app to allow for publishing and conusming of files via a folder.
+Python app to allow for publishing and consuming of files via a folder.
 The publisher just copies the data files into a folder, and runs the
 *Ocean Drop* script.
 
