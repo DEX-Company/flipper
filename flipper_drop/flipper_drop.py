@@ -24,17 +24,17 @@ from starfish.asset import (
 
 from starfish.exceptions import StarfishAssetNotFound
 
-from ocean_drop.sync import Sync
-from ocean_drop.utils import (
+from flipper_drop.sync import Sync
+from flipper_drop.utils import (
     generate_listing_checksum,
     get_filename_from_metadata
 )
 
 from eth_account import Account
 
-logger = logging.getLogger('ocean_drop')
+logger = logging.getLogger('flipper_drop')
 
-class OceanDrop:
+class FlipperDrop:
     def __init__(self, config):
         self._config = config
         self._ocean = None
@@ -237,7 +237,7 @@ class OceanDrop:
             # get the first remote asset ( there will only be 1 )
             remote_asset = purchase_asset.get_asset_at_index(0)
             # get the 'url', in our case it's the full DID of the Surfer server and asset_id
-            surfer_did, asset_id = self._surfer_agent.decode_asset_did(remote_asset.url)
+            surfer_did, asset_id = self._surfer_agent.decode_asset_did(remote_asset.metadata['url'])
 
             # TODO: Resolve the `surfer_did` to the actual URL, at the moment we assume the URL is the same
             # as the local demo surfer URL. But later we will need to connect to  a new SurferAgent based on

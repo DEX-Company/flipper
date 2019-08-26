@@ -23,7 +23,7 @@ class ConfigReader():
             'network_url': None,
             'drop_secret': None,
             'drop_path': None,
-            'search_tag': 'ocean_drop_share',
+            'search_tag': 'flipper_drop_share',
         },
         'ocean': {
             'keeper_url': None,
@@ -31,8 +31,8 @@ class ConfigReader():
             'gas_limit': 100000,
         },
         'asset': {
-            'name':  'Ocean Drop Asset',
-            'author': 'Ocean Drop Asset',
+            'name':  'Flipper Drop Asset',
+            'author': 'Flipper Drop Asset',
             'license': 'closed',
             'description': 'Not for public sale',
             'price': 1,
@@ -80,4 +80,3 @@ class ConfigReader():
             setattr(self, object_name, config_section)
             for name, default_value in values.items():
                 setattr(config_section, name, config.get(section_name, name, fallback=default_value))
-

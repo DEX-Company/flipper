@@ -96,8 +96,8 @@ def test_file_transfer(ocean, config, resources, surfer_agent, squid_agent):
 
 
     #get the surfer_did and asset_id from the 'url'
-    assert(remote_asset.url)
-    surfer_did, asset_id = surfer_agent.decode_asset_did(remote_asset.url)
+    assert(remote_asset.metadata['url'])
+    surfer_did, asset_id = surfer_agent.decode_asset_did(remote_asset.metadata['url'])
     assert(surfer_did)
     assert(asset_id)
 

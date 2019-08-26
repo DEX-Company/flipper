@@ -5,7 +5,7 @@ import logging
 import pathlib
 import datetime
 
-from ocean_drop.config_reader import ConfigReader
+from flipper_drop.config_reader import ConfigReader
 
 
 from starfish import Ocean
@@ -16,7 +16,7 @@ from starfish.agent import (
 
 TESTS_PATH = pathlib.Path.cwd() / 'tests'
 RESOURCES_PATH = TESTS_PATH / 'resources'
-CONFIG_FILE = TESTS_PATH / 'ocean_drop.conf'
+CONFIG_FILE = TESTS_PATH / 'flipper_drop.conf'
 TEST_ASSET_FILE = RESOURCES_PATH / 'test_asset_file.txt'
 
 TEST_LISTING_DATA = {
