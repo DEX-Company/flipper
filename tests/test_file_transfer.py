@@ -16,6 +16,7 @@ import time
 
 from starfish.asset import (
     DataAsset,
+    RemoteDataAsset,
     BundleAsset
 )
 
@@ -50,7 +51,7 @@ def test_file_transfer(ocean, config, resources, surfer_agent, squid_agent):
     download_link = asset_store.did
     resourceId = base64.b64encode(bytes(resources.asset_file)).decode('utf-8')
 
-    asset_sale = DataAsset.create_from_url('LinkAsset', download_link, metadata={'resourceId': resourceId})
+    asset_sale = RemoteDataAsset.create_with_url('LinkAsset', download_link, metadata={'resourceId': resourceId})
     # print('metadata ',squid_agent._convert_listing_asset_to_metadata(asset_sale, resources.listing_data))
     listing = squid_agent.register_asset(asset_sale, resources.listing_data, account=download_account)
     assert(listing)
@@ -95,8 +96,8 @@ def test_file_transfer(ocean, config, resources, surfer_agent, squid_agent):
 
 
     #get the surfer_did and asset_id from the 'url'
-    assert(remote_asset.metadata['url'])
-    surfer_did, asset_id = surfer_agent.decode_asset_did(remote_asset.metadata['url'])
+    assert(remote_asset.url)
+    surfer_did, asset_id = surfer_agent.decode_asset_did(remote_asset.url)
     assert(surfer_did)
     assert(asset_id)
 

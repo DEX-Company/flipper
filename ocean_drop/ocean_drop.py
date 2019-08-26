@@ -17,7 +17,10 @@ from starfish.agent import (
     SurferAgent,
     SquidAgent,
 )
-from starfish.asset import DataAsset
+from starfish.asset import (
+    DataAsset,
+    RemoteDataAsset
+)
 
 from starfish.exceptions import StarfishAssetNotFound
 
@@ -193,7 +196,7 @@ class OceanDrop:
         # build the 'resourceId', which will be the relative path and filename
         resourceId = base64.b64encode(relative_filename.encode()).decode('utf-8')
         # create a remoet asset for registration
-        asset_sale = DataAsset.create_from_url('LinkAsset', download_link, metadata={'resourceId': resourceId})
+        asset_sale = RemoteDataAsset.create_with_url('LinkAsset', download_link, metadata={'resourceId': resourceId})
         # register the asset with squid agent
         listing = self._squid_agent.register_asset(asset_sale, listing_data, upload_account)
         return listing
@@ -234,7 +237,7 @@ class OceanDrop:
             # get the first remote asset ( there will only be 1 )
             remote_asset = purchase_asset.get_asset_at_index(0)
             # get the 'url', in our case it's the full DID of the Surfer server and asset_id
-            surfer_did, asset_id = self._surfer_agent.decode_asset_did(remote_asset.metadata['url'])
+            surfer_did, asset_id = self._surfer_agent.decode_asset_did(remote_asset.url)
 
             # TODO: Resolve the `surfer_did` to the actual URL, at the moment we assume the URL is the same
             # as the local demo surfer URL. But later we will need to connect to  a new SurferAgent based on
@@ -256,11 +259,9 @@ class OceanDrop:
                     os.makedirs(folder)
             logger.info(f'saving file to {filename}')
 
+
             # save the data
-            # TODO: need to change this to: asset_store.save(filename)
-            # for the time being just save the data to disk
-            with open(filename, 'wb') as fp:
-                fp.write(asset_store.data)
+            asset_store.save_to_file(filename)
 
             return True
         return False
