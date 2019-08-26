@@ -45,6 +45,7 @@ popd
 
 rm ./flipper_drop
 ln -s $FLIPPER_DROP_FOLDER/cli/flipper_drop .
+ln -s $FLIPPER_DROP_FOLDER/cli/flipper_drop_local.conf ./flipper_drop.conf
 
 rm ./flipper_drop.conf
 NEW_UUID=`openssl rand -hex 16`
@@ -62,11 +63,11 @@ fi
 . demo-magic/demo-magic.sh -n
 
 clear
-pyfiglet 'Automated Data Publish and Consume Dropbox'
+pyfiglet 'Flipper Dropbox'
 echo
 wait
 echo
-echo 'What is the Dropbox?'
+echo 'What is the Flipper Dropbox?'
 echo 'Python Dropbox application to provide uploading and downloading of files between users'
 wait
 echo

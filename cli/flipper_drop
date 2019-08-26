@@ -10,7 +10,7 @@ from flipper_drop.config_reader import ConfigReader
 from flipper_drop import FlipperDrop
 from flipper_drop.utils import show_size_as_text
 
-DEFAULT_CONFIG_FILENAME = './flipper.conf'
+DEFAULT_CONFIG_FILENAME = './flipper_drop.conf'
 DEFAULT_MAX_COUNT = 0
 
 COMMAND_LIST = {
