@@ -11,7 +11,7 @@ import logging
 import json
 from web3 import Web3
 
-from starfish.asset import DataAsset
+from starfish.asset import RemoteDataAsset
 
 def test_asset_listing(ocean, config, resources, surfer_agent, squid_agent):
 
@@ -41,7 +41,7 @@ def test_asset_listing(ocean, config, resources, surfer_agent, squid_agent):
         },
         'tags': [pd_test_case_tag],
     }
-    asset_sale = DataAsset.create_from_url('TestDummyURL', dummy_url)
+    asset_sale = RemoteDataAsset.create_with_url('TestDummyURL', dummy_url)
     # print('metadata ',squid_agent._convert_listing_asset_to_metadata(asset_sale, listing_data))
     listing = squid_agent.register_asset(asset_sale, listing_data, account=upload_account)
     assert(listing)

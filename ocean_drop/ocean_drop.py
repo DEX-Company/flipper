@@ -17,7 +17,10 @@ from starfish.agent import (
     SurferAgent,
     SquidAgent,
 )
-from starfish.asset import DataAsset
+from starfish.asset import (
+    DataAsset,
+    RemoteDataAsset
+)
 
 from starfish.exceptions import StarfishAssetNotFound
 
@@ -193,7 +196,7 @@ class OceanDrop:
         # build the 'resourceId', which will be the relative path and filename
         resourceId = base64.b64encode(relative_filename.encode()).decode('utf-8')
         # create a remoet asset for registration
-        asset_sale = DataAsset.create_from_url('LinkAsset', download_link, metadata={'resourceId': resourceId})
+        asset_sale = RemoteDataAsset.create_with_url('LinkAsset', download_link, metadata={'resourceId': resourceId})
         # register the asset with squid agent
         listing = self._squid_agent.register_asset(asset_sale, listing_data, upload_account)
         return listing
@@ -256,11 +259,9 @@ class OceanDrop:
                     os.makedirs(folder)
             logger.info(f'saving file to {filename}')
 
+
             # save the data
-            # TODO: need to change this to: asset_store.save(filename)
-            # for the time being just save the data to disk
-            with open(filename, 'wb') as fp:
-                fp.write(asset_store.data)
+            asset_store.save_to_file(filename)
 
             return True
         return False

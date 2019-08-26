@@ -62,19 +62,19 @@ fi
 . demo-magic/demo-magic.sh -n
 
 clear
-pyfiglet 'Ocean Drop Demo'
+pyfiglet 'Automated Data Publish and Consume Dropbox'
 echo
 wait
 echo
-echo 'What is Ocean Drop?'
-echo 'Python Ocean Dropbox application to provide uploading and downloading of files between users'
+echo 'What is the Dropbox?'
+echo 'Python Dropbox application to provide uploading and downloading of files between users'
 wait
 echo
 echo 'How does the demo work, what do I need to setup?'
 echo 'For this demo I am running `Barge` the OceanProtocol Network `stack` locally on another tab ..'
 wait
 echo
-echo 'Lets look at the ocean_drop app help text and see what options are available ..'
+echo 'Lets look at the app help text and see what options are available ..'
 pe "./ocean_drop --help"
 wait
 echo
