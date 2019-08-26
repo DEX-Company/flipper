@@ -16,6 +16,4 @@ __version__ = '0.0.1'
 # add handler to logger
 # logger.addHandler(handler)
 
-from ocean_drop.ocean_drop import OceanDrop
-
-
+from flipper_drop.flipper_drop import FlipperDrop

@@ -13,7 +13,7 @@ import re
 
 from web3 import Web3
 
-logger = logging.getLogger('ocean_drop.utils')
+logger = logging.getLogger('flipper_drop.utils')
 
 BYTES_PER_KB = 1000
 
@@ -99,7 +99,7 @@ def show_size_as_text(size):
     Show the size in text readable form.
 
     :return: the size in bytes, kb, mb e.t.c depending on the quantit of size.
-    
+
     """
     result = f'{size} Bytes'
     items = [

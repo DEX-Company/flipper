@@ -24,17 +24,17 @@ from starfish.asset import (
 
 from starfish.exceptions import StarfishAssetNotFound
 
-from ocean_drop.sync import Sync
-from ocean_drop.utils import (
+from flipper_drop.sync import Sync
+from flipper_drop.utils import (
     generate_listing_checksum,
     get_filename_from_metadata
 )
 
 from eth_account import Account
 
-logger = logging.getLogger('ocean_drop')
+logger = logging.getLogger('flipper_drop')
 
-class OceanDrop:
+class FlipperDrop:
     def __init__(self, config):
         self._config = config
         self._ocean = None
