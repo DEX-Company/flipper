@@ -42,10 +42,8 @@ pip install -r requirements_dev.txt
 pip install pyfiglet
 popd
 
-
 rm ./flipper_drop
 ln -s $FLIPPER_DROP_FOLDER/cli/flipper_drop .
-ln -s $FLIPPER_DROP_FOLDER/cli/flipper_drop_local.conf ./flipper_drop.conf
 
 rm ./flipper_drop.conf
 NEW_UUID=`openssl rand -hex 16`
