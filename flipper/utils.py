@@ -13,7 +13,7 @@ import re
 
 from web3 import Web3
 
-logger = logging.getLogger('flipper_drop.utils')
+logger = logging.getLogger('flipper.utils')
 
 BYTES_PER_KB = 1000
 

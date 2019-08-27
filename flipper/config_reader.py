@@ -23,7 +23,7 @@ class ConfigReader():
             'network_url': None,
             'drop_secret': None,
             'drop_path': None,
-            'search_tag': 'flipper_drop_share',
+            'search_tag': 'flipper_share',
         },
         'ocean': {
             'keeper_url': None,

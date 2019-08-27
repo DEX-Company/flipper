@@ -16,4 +16,4 @@ __version__ = '0.0.1'
 # add handler to logger
 # logger.addHandler(handler)
 
-from flipper_drop.flipper_drop import FlipperDrop
+from flipper.flipper import Flipper

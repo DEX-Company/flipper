@@ -8,14 +8,14 @@
 
 import logging
 
-from flipper_drop.utils import (
+from flipper.utils import (
     read_file_list,
     show_size_as_text,
     generate_listing_checksum,
     get_filename_from_metadata,
 )
 
-logger = logging.getLogger('flipper_drop.sync')
+logger = logging.getLogger('flipper.sync')
 
 class Sync():
     def __init__(self, ocean, squid_agent):

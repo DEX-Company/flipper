@@ -6,11 +6,11 @@ import logging
 import sys
 import os
 
-from flipper_drop.config_reader import ConfigReader
-from flipper_drop import FlipperDrop
-from flipper_drop.utils import show_size_as_text
+from flipper.config_reader import ConfigReader
+from flipper import Flipper
+from flipper.utils import show_size_as_text
 
-DEFAULT_CONFIG_FILENAME = './flipper_drop.conf'
+DEFAULT_CONFIG_FILENAME = './flipper.conf'
 DEFAULT_MAX_COUNT = 0
 
 COMMAND_LIST = {
@@ -54,7 +54,7 @@ def show_sync_satus(sync):
     print(f'Found {stats["download_count"]} files waiting to download')
 
 def main():
-    parser = argparse.ArgumentParser('Flipper Drop')
+    parser = argparse.ArgumentParser('Flipper')
     command_list_text = '","'.join(COMMAND_LIST)
     parser.add_argument(
         'drop_command',
@@ -126,26 +126,26 @@ def main():
         config.main.drop_path = args.path
 
     logger.info(f'drop folder is {config.main.drop_path}')
-    flipper_drop = FlipperDrop(config)
+    flipper = Flipper(config)
 
     # process the arguments
     if args.drop_command:
         command_text = args.drop_command[0].lower()[:3]
         if command_text == 'upl':
-            flipper_drop.upload(args.max, args.name, args.dry_run)
+            flipper.upload(args.max, args.name, args.dry_run)
         elif command_text == 'dow':
-            flipper_drop.download(args.max, args.name, args.dry_run)
+            flipper.download(args.max, args.name, args.dry_run)
         elif command_text == 'sta':
-            sync = flipper_drop.get_sync
+            sync = flipper.get_sync
             if sync:
                 show_sync_satus(sync)
             else:
                 print('cannot connect to get the status')
         elif command_text == 'wat':
-            flipper_drop.process_payment_events()
+            flipper.process_payment_events()
         elif command_text == 'acc':
             if args.drop_command[1] == 'list':
-                account_list = flipper_drop.account_list()
+                account_list = flipper.account_list()
                 if account_list:
                     for address, account in account_list.items():
                         print(account)
@@ -153,7 +153,7 @@ def main():
                 if not args.drop_command[2]:
                     print('Please provide a password')
                 else:
-                    address = flipper_drop.account_add(args.drop_command[2])
+                    address = flipper.account_add(args.drop_command[2])
                     if address:
                         print(f'created a new account {address}')
                     else:

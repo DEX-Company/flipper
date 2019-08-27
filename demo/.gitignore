@@ -2,5 +2,5 @@ artifacts/
 demo-magic/
 squid_py.db
 test_drop/
-flipper_drop
-flipper_drop.conf
+flipper
+flipper.conf
