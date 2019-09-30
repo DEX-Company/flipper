@@ -48,8 +48,10 @@ ln -s $FLIPPER_FOLDER/cli/flipper .
 rm ./flipper.conf
 NEW_UUID=`openssl rand -hex 16`
 cp $FLIPPER_FOLDER/cli/flipper_local.conf flipper.conf
-sed -i "s/^drop_secret = .*/drop_secret = $NEW_UUID/g" flipper.conf
-sed -i "s/^# network_url.*//g" flipper.conf
+sed -i -- "s/^drop_secret = .*/drop_secret = $NEW_UUID/g" flipper.conf
+sed -i -- "s/^# network_url.*//g" flipper.conf
+
+rm flipper.conf--
 
 # kill any watch process
 WATCH_PID=`ps -ef | grep './flipper watch' | grep python | awk '{print $2}'`
@@ -61,7 +63,7 @@ fi
 . demo-magic/demo-magic.sh -n
 
 clear
-pyfiglet 'Flipper'
+pyfiglet 'Flipper Drop Box'
 echo
 wait
 echo
