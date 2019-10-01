@@ -40,10 +40,12 @@ class ConfigReader():
         'upload': {
             'account_address': None,
             'account_password': None,
+            'account_keyfile': None,
         },
         'download': {
             'account_address': None,
             'account_password': None,
+            'account_keyfile': None,
         },
         'squid agent': {
             'aquarius_url': '${main:network_url}:5000',

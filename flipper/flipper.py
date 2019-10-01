@@ -190,7 +190,7 @@ class Flipper:
         self._surfer_agent.upload_asset(asset_store)
 
         # get the account needed for registration.
-        upload_account = self._ocean.get_account(self._config.upload.account_address, self._config.upload.account_password)
+        upload_account = self._ocean.load_account(self._config.upload.account_address, self._config.upload.account_password, self._config.upload.account_keyfile)
         download_link = asset_store.did
 
         # build the 'resourceId', which will be the relative path and filename
@@ -214,7 +214,7 @@ class Flipper:
         """
 
         # get the download account to use.
-        download_account = self._ocean.get_account(self._config.download.account_address, self._config.download.account_password)
+        download_account = self._ocean.load_account(self._config.download.account_address, self._config.download.account_password, self._config.download.account_keyfile)
 
         # check the account balance and maybe to an autotopup
         self.auto_topup_account(download_account)
