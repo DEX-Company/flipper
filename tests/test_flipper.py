@@ -11,6 +11,8 @@ import threading
 
 from flipper import Flipper
 
+process_payment_done = threading.Event()
+
 def assert_stats_equal(stats, check_stats):
     for name, value in check_stats.items():
         assert(name in stats)
@@ -49,7 +51,7 @@ def assert_pre_upload_stats(flipper, drop_folder):
 def assert_post_upload_stats(flipper, drop_folder8):
     sync_result = flipper.get_sync
     assert(sync_result)
-    print(sync_result.upload_file_list)
+
 
     stats = {
         'file_count': 3,
@@ -62,7 +64,6 @@ def assert_post_upload_stats(flipper, drop_folder8):
 def assert_pre_download_stats(flipper, drop_folder8):
     sync_result = flipper.get_sync
     assert(sync_result)
-    print(sync_result.upload_file_list)
 
     stats = {
         'file_count': 0,
@@ -76,7 +77,6 @@ def assert_pre_download_stats(flipper, drop_folder8):
 def assert_post_download_stats(flipper, drop_folder8):
     sync_result = flipper.get_sync
     assert(sync_result)
-    print(sync_result.upload_file_list)
 
     stats = {
         'file_count': 3,
@@ -86,8 +86,11 @@ def assert_post_download_stats(flipper, drop_folder8):
     }
     assert_stats_equal(sync_result.stats, stats)
 
+def is_test_done():
+    return not process_payment_done.is_set()
+
 def process_payments(flipper, timeout_seconds):
-    flipper.process_payment_events(timeout_seconds)
+    flipper.process_payment_events(timeout_seconds, is_test_done)
 
 def test_upload_download(config, drop_folder):
     config.main.drop_path = drop_folder['upload']
@@ -97,6 +100,7 @@ def test_upload_download(config, drop_folder):
     flipper.upload()
     assert_post_upload_stats(flipper, drop_folder)
 
+    process_payment_done.set()
     thread = threading.Thread(target=process_payments, args=(flipper, 60 ))
     thread.start()
 
@@ -105,3 +109,5 @@ def test_upload_download(config, drop_folder):
     assert_pre_download_stats(flipper, drop_folder)
     flipper.download()
     assert_post_download_stats(flipper, drop_folder)
+
+    process_payment_done.clear()

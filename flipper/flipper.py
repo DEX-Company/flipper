@@ -110,7 +110,7 @@ class Flipper:
                             if counter >= max_count and max_count > 0:
                                 break
 
-    def process_payment_events(self, timeout_seconds=0):
+    def process_payment_events(self, timeout_seconds=0, is_done=None):
         """
 
         Process the payment events off the block chain. When a publisher/uploaded wants a consumer/downloader to
@@ -131,7 +131,11 @@ class Flipper:
                 timeout_time = time.time() + timeout_seconds
             while timeout_time > time.time() or timeout_time == 0:
                 time.sleep(1)
+                if is_done:
+                    if is_done():
+                        break
             logger.info('exit process payments')
+
     def topup(self):
         """
 
