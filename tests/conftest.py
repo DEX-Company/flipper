@@ -4,6 +4,8 @@ import secrets
 import logging
 import pathlib
 import datetime
+import shutil
+import os
 
 from flipper.config_reader import ConfigReader
 
@@ -18,6 +20,8 @@ TESTS_PATH = pathlib.Path.cwd() / 'tests'
 RESOURCES_PATH = TESTS_PATH / 'resources'
 CONFIG_FILE = TESTS_PATH / 'flipper.conf'
 TEST_ASSET_FILE = RESOURCES_PATH / 'test_asset_file.txt'
+DROP_FOLDER_PATH = TESTS_PATH / 'test_drop'
+DATA_FILES = RESOURCES_PATH / 'data_files'
 
 TEST_LISTING_DATA = {
     'name': 'Test file asset',
@@ -76,3 +80,19 @@ def resources():
     data.asset_file = TEST_ASSET_FILE
     data.listing_data = TEST_LISTING_DATA
     return data
+
+@pytest.fixture(scope='module')
+def drop_folder():
+    if os.path.exists(DROP_FOLDER_PATH):
+        shutil.rmtree(DROP_FOLDER_PATH)
+    path_list = {
+        'upload': DROP_FOLDER_PATH / 'upload',
+        'download': DROP_FOLDER_PATH / 'download'
+    }
+    os.mkdir(DROP_FOLDER_PATH)
+    for name, path in path_list.items():
+        os.mkdir(path)
+
+    shutil.copytree(DATA_FILES, path_list['upload'] / 'data_files')
+    shutil.copy(TEST_ASSET_FILE,  path_list['upload'])
+    return path_list
