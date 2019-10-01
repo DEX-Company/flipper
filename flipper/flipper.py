@@ -110,7 +110,7 @@ class Flipper:
                             if counter >= max_count and max_count > 0:
                                 break
 
-    def process_payment_events(self):
+    def process_payment_events(self, timeout_seconds=0):
         """
 
         Process the payment events off the block chain. When a publisher/uploaded wants a consumer/downloader to
@@ -119,12 +119,19 @@ class Flipper:
 
         """
         if self.connect():
-            upload_account = self._ocean.get_account(self._config.upload.account_address, self._config.upload.account_password)
+            upload_account = self._ocean.load_account(
+                self._config.upload.account_address,
+                self._config.upload.account_password,
+                self._config.upload.account_keyfile
+            )
             self._squid_agent.start_agreement_events_monitor(upload_account)
             logger.info('wait for transaction to be started')
-            while True:
+            timeout_time = 0
+            if timeout_seconds > 0:
+                timeout_time = time.time() + timeout_seconds
+            while timeout_time > time.time() or timeout_time == 0:
                 time.sleep(1)
-
+            logger.info('exit process payments')
     def topup(self):
         """
 
@@ -190,7 +197,11 @@ class Flipper:
         self._surfer_agent.upload_asset(asset_store)
 
         # get the account needed for registration.
-        upload_account = self._ocean.load_account(self._config.upload.account_address, self._config.upload.account_password, self._config.upload.account_keyfile)
+        upload_account = self._ocean.load_account(
+            self._config.upload.account_address,
+            self._config.upload.account_password,
+            self._config.upload.account_keyfile
+        )
         download_link = asset_store.did
 
         # build the 'resourceId', which will be the relative path and filename
@@ -214,7 +225,11 @@ class Flipper:
         """
 
         # get the download account to use.
-        download_account = self._ocean.load_account(self._config.download.account_address, self._config.download.account_password, self._config.download.account_keyfile)
+        download_account = self._ocean.load_account(
+            self._config.download.account_address,
+            self._config.download.account_password,
+            self._config.download.account_keyfile
+        )
 
         # check the account balance and maybe to an autotopup
         self.auto_topup_account(download_account)
@@ -312,7 +327,6 @@ class Flipper:
         if account.ocean_balance < min_ocean_balance:
             logger.info(f'account {account.address} current balance is {account.ocean_balance} \
 below the minimum allowed, so auto top up of account with ocean tokens')
-            account.unlock()
             account.request_tokens(topup_ocean_balance)
             logger.info(f'account {account.address} current balance is now {account.ocean_balance}')
 

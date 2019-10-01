@@ -85,15 +85,15 @@ def resources():
 def drop_folder():
     if os.path.exists(DROP_FOLDER_PATH):
         shutil.rmtree(DROP_FOLDER_PATH)
-    path_list = {
+    folder_list = {
         'upload': DROP_FOLDER_PATH / 'upload',
         'download': DROP_FOLDER_PATH / 'download'
     }
     os.mkdir(DROP_FOLDER_PATH)
-    for name, path in path_list.items():
+    for name, path in folder_list.items():
         os.mkdir(path)
 
-    shutil.copytree(DATA_FILES, path_list['upload'] / 'data_files')
-    shutil.copy(TEST_ASSET_FILE,  path_list['upload'])
-        
-    return path_list
+    shutil.copytree(DATA_FILES, folder_list['upload'] / 'data_files')
+    shutil.copy(TEST_ASSET_FILE,  folder_list['upload'])
+
+    return folder_list
