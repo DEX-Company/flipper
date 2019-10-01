@@ -95,4 +95,5 @@ def drop_folder():
 
     shutil.copytree(DATA_FILES, path_list['upload'] / 'data_files')
     shutil.copy(TEST_ASSET_FILE,  path_list['upload'])
+        
     return path_list
